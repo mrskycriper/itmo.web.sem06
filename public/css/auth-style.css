@@ -1,0 +1,86 @@
+.login-form {
+    color: white;
+    border: 3px solid white;
+    display: inline-block;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+}
+
+.auth-input {
+    display: inline-block;
+    font-size: 16px;
+
+    border: 5px solid #1881B5;
+    border-radius: 10px;
+
+    padding: 5px;
+
+    flex-grow: 1;
+}
+
+.login-button {
+    background-color: white;
+    padding: 5px;
+    border-radius: 10px;
+    border: 5px solid #1881B5;
+    font-size: 16px;
+    flex-grow: 0;
+    display: inline-block;
+    color: #222222;
+}
+
+.login-button:hover {
+    text-decoration-line: underline;
+}
+
+.register-button {
+    background-color: white;
+
+    padding: 5px;
+    border-radius: 10px;
+    border: 5px solid #1881B5;
+    font-size: 16px;
+    flex-grow: 0;
+    display: inline-block;
+    font-weight: normal;
+}
+
+.register-button:visited,
+.register-button:link {
+    color: #222222;
+}
+
+.register-button:hover {
+    text-decoration-line: underline;
+}
+
+.avatar {
+    display: inline-block;
+    height: 48px;
+    width: 48px;
+    padding: 5px;
+}
+
+.user-card {
+    color: white;
+    border: 3px solid white;
+    display: flex;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+    align-items: center;
+}
+
+.user-card a {
+    padding: 5px;
+}
+
+.user-card a:hover {
+    text-decoration-line: underline;
+}
+
+.user-card a:visited,
+.user-card a:link {
+    color: white;
+}
