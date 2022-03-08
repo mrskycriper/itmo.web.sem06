@@ -1,0 +1,18 @@
+nav(class="navigation-bar")
+    p OpenForum
+    a(href="/" id="main-page") Главная
+    a(href="/topics" id="forum-page") Тематические разделы
+    a(href="/chats" id="chat-page") Чаты
+block account
+    if !authorised
+        div(class="login-form")
+            form(method="POST" action="login")
+                input(type="text" class="auth-input" name="username" placeholder="Логин")
+                input(type="text" class="auth-input" name="password" placeholder="Пароль")
+                input(type="submit" class="login-button" value="Войти")
+            a(href="" class="register-button") Зарегистрироваться
+    else
+        div(class="user-card")
+            img(src="/images/profile.png" class="avatar")
+            a(href="/#") Username
+

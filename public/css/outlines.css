@@ -1,0 +1,196 @@
+@font-face {
+    font-weight: 400;
+    font-family: "Montserrat";
+    font-style: normal;
+    src: url("../fonts/Montserrat-Regular.ttf") format("tff");
+}
+
+@font-face {
+    font-weight: 700;
+    font-family: "Montserrat";
+    font-style: normal;
+    src: url("../fonts/Montserrat-Bold.ttf") format("ttf");
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #f5f5f5;
+        color: #222;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #222;
+        color: #fff;
+    }
+}
+
+html {
+    font-size: 14px;
+}
+
+html,
+body {
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+    /*font-size: 14px;
+    font-size: 1.5vmax;*/
+    line-height: 20px;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+footer {
+    flex-grow: 0
+}
+
+main {
+    flex-grow: 1
+}
+
+
+footer {
+    padding: 10px;
+
+    background-color: #1881B5;
+    font-weight: bold;
+    text-align: center;
+
+}
+
+
+footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+
+footer {
+    box-sizing: border-box;
+    width: 100%;
+
+    font-size: 14px;
+}
+
+
+a {
+    text-decoration: none;
+}
+
+
+footer > p,
+footer > a:link,
+footer > a:visited {
+    display: inline-block;
+
+    padding: 15px;
+    margin: 10px;
+
+    border-radius: 10px;
+    color: white;
+}
+
+
+footer > p {
+    border: 3px dashed white;
+}
+
+
+footer > a:link,
+footer > a:visited {
+    border: 3px solid #1EA5E8;
+    background-color: #1EA5E8;
+}
+
+footer > a:hover,
+footer > a:active {
+    border: 3px solid #1EA5E8;
+    background-color: #2196d2;
+}
+
+.clearfix {
+    clear: both;
+}
+
+
+h1 {
+    margin: 10px;
+    text-align: center;
+    font-size: 24px;
+    line-height: 30px;
+}
+
+h2 {
+    margin: 10px;
+    font-size: 22px;
+    line-height: 28px;
+}
+
+h3 {
+    margin: 5px;
+    font-size: 20px;
+    line-height: 26px;
+}
+
+h4 {
+    margin: 5px;
+    font-size: 18px;
+    line-height: 24px;
+}
+
+h5 {
+    margin: 5px;
+    font-size: 16px;
+    line-height: 22px;
+}
+
+h6 {
+    margin: 5px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+main {
+    margin: 10px;
+    padding: 5px;
+}
+
+section {
+    padding: 5px;
+    border-radius: 10px;
+    border: 2px dotted #1881B5;
+
+    margin: 10px auto;
+    max-width: 1000px;
+}
+
+article {
+    margin: 10px;
+    padding: 10px;
+    border-left: 2px solid #1881B5;
+}
+
+aside {
+    margin: 10px;
+    padding: 10px;
+    border-left: 5px solid #455E6B;
+    max-width: 300px;
+    float: right;
+}
+
+pre {
+    overflow: auto;
+}
+
+
+
+
+
