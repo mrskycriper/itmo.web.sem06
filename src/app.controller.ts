@@ -9,38 +9,33 @@ import {
 } from '@nestjs/common';
 
 import { Response, Request } from 'express';
-import { LoggingInterceptor } from './logging.interceptor';
+import { TimerInterceptor } from './timer-interceptor.service';
 
-@UseInterceptors(LoggingInterceptor)
+@UseInterceptors(TimerInterceptor)
 @Controller()
 export class AppController {
-  async root() {
-    await new Promise((resolve) =>
-      setTimeout(resolve, 100 + Math.floor(Math.random())),
-    );
-  }
-
   @Get('/')
   @Render('main')
-  root1() {
-    return { title: 'Главная - OpenForum', authorised: true};
+  renderMain() {
+    return { title: 'Главная - OpenForum', authorised: true };
   }
 
   @Get('/topics')
   @Render('topics')
-  root2() {
+  renderTopics() {
     return { title: 'Разделы - OpenForum' };
   }
 
   @Get('/chats')
   @Render('chats')
-  root3() {
+  renderChats() {
     return { title: 'Чаты - OpenForum' };
   }
 
   @Post('login')
   loginUser(@Res() response: Response, @Req() request: Request) {
     response.cookie('user', request.body.username);
-    response.end();
+    //response.end();
+    response.redirect('back');
   }
 }

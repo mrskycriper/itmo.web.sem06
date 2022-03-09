@@ -5,10 +5,9 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 @Injectable()
-export class LoggingInterceptor implements NestInterceptor {
+export class TimerInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     return next.handle().pipe(
