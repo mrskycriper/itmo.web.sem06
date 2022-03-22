@@ -81,7 +81,6 @@ model Chat {
   description String?
   users       User[]
   messages    Message[]
-  admins      User[]
 
   @@map("chat")
 }
