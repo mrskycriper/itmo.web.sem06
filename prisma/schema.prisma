@@ -15,6 +15,8 @@ model User {
   email String  @unique
   name  String?
   posts Post[]
+
+  @@map("user")
 }
 
 model Post {
@@ -24,4 +26,6 @@ model Post {
   published Boolean? @default(false)
   author    User?    @relation(fields: [authorId], references: [id])
   authorId  Int?
+
+  @@map("post")
 }
