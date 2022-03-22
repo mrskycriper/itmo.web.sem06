@@ -11,21 +11,92 @@ datasource db {
 }
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  name     String    @unique
+  role     Role      @default(USER)
+  posts    Post[]
+  comments Comment[]
+  profile  Profile?
 
   @@map("user")
 }
 
+model Profile {
+  id   Int    @id @default(autoincrement())
+  bio  String
+  user User   @relation(references: [id])
+
+  @@map("profile")
+}
+
 model Post {
-  id        Int      @default(autoincrement()) @id
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
   title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  content   String
+  published Boolean   @default(false)
+  author    User      @relation(references: [id])
+  topic     Topic     @relation(references: [id])
+  comments  Comment[]
 
   @@map("post")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  author    User     @relation(references: [id])
+  post      Post     @relation(references: [id])
+  edited    Boolean  @default(false)
+
+  @@map("comment")
+}
+
+model Topic {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description Steing?
+  posts       Post[]   @relation(references: [id])
+  category    Category @relation(references: [id])
+
+  @@map("topic")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description Steing?
+  topics      Topic[] @relation(references: [id])
+  moderators  User[]
+
+  @@map("category")
+}
+
+model Chat {
+  id          Int        @id @default(autoincrement())
+  name        String?
+  description Steing?
+  users       User[]
+  messages    Message[]
+  admins      User[]
+
+  @@map("chat")
+}
+
+model Message {
+  id          Int    @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  author    User     @relation(references: [id])
+  chat      Chat     @relation(references: [id])
+
+  @@map("message")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
 }
