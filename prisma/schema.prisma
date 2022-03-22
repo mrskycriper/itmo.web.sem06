@@ -17,6 +17,7 @@ model User {
   role     Role      @default(USER)
   posts    Post[]
   comments Comment[]
+  chats    Chat[]
   profile  Profile?
 
   @@map("user")
@@ -57,7 +58,7 @@ model Comment {
 model Topic {
   id          Int      @id @default(autoincrement())
   name        String
-  description Steing?
+  description String?
   posts       Post[]   @relation(references: [id])
   category    Category @relation(references: [id])
 
@@ -67,7 +68,7 @@ model Topic {
 model Category {
   id          Int     @id @default(autoincrement())
   name        String
-  description Steing?
+  description String?
   topics      Topic[] @relation(references: [id])
   moderators  User[]
 
@@ -77,7 +78,7 @@ model Category {
 model Chat {
   id          Int        @id @default(autoincrement())
   name        String?
-  description Steing?
+  description String?
   users       User[]
   messages    Message[]
   admins      User[]
@@ -86,7 +87,7 @@ model Chat {
 }
 
 model Message {
-  id          Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   content   String
   createdAt DateTime @default(now())
   author    User     @relation(references: [id])
