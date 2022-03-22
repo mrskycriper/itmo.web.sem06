@@ -21,14 +21,14 @@ model User {
   profile  Profile?
 
   @@map("user")
+  Message Message[]
 }
 
 model Profile {
-  id   Int    @id @default(autoincrement())
-  bio  String
-  user User   @relation(fields: [name, role], references: [name, role])
-  name String
-  role Role
+  id       Int    @id @default(autoincrement())
+  bio      String
+  user     User   @relation(fields: [userName], references: [name])
+  userName String @unique
 
   @@map("profile")
 }
@@ -39,11 +39,13 @@ model Post {
   title     String
   content   String
   published Boolean   @default(false)
-  author    User
-  topic     Topic
+  author    User      @relation(fields: [userId], references: [id])
+  topic     Topic     @relation(fields: [topicId], references: [id])
   comments  Comment[]
 
   @@map("post")
+  userId  Int
+  topicId Int
 }
 
 model Comment {
@@ -52,10 +54,11 @@ model Comment {
   createdAt  DateTime @default(now())
   author     User     @relation(fields: [authorName], references: [name])
   authorName String
-  post       Post     @relation(references: [id])
+  post       Post     @relation(references: [id], fields: [postId])
   edited     Boolean  @default(false)
 
   @@map("comment")
+  postId Int
 }
 
 model Topic {
@@ -63,10 +66,10 @@ model Topic {
   name        String
   description String?
   posts       Post[]
-  category    Category
-  moderators  User[]
+  category    Category @relation(fields: [categoryId], references: [id])
 
   @@map("topic")
+  categoryId Int
 }
 
 model Category {
@@ -74,13 +77,12 @@ model Category {
   name        String
   description String?
   topics      Topic[]
-  moderators  User[]
 
   @@map("category")
 }
 
 model Chat {
-  id          Int        @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String?
   description String?
   users       User[]
@@ -95,9 +97,10 @@ model Message {
   createdAt  DateTime @default(now())
   author     User     @relation(fields: [authorName], references: [name])
   authorName String
-  chat       Chat
+  chat       Chat     @relation(fields: [chatId], references: [id])
 
   @@map("message")
+  chatId Int
 }
 
 enum Role {
