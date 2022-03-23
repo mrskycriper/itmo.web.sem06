@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  name     String    @unique
-  role     Role      @default(USER)
-  posts    Post[]
-  comments Comment[]
-  Message  Message[]
-  chats    Chat[]
-  profile  Profile?
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  name         String    @unique
+  role         Role      @default(USER)
+  posts        Post[]
+  comments     Comment[]
+  Message      Message[]
+  chats        Chat[]
+  profile      Profile?
 
   @@map("user")
 }
@@ -29,8 +30,8 @@ model Profile {
   bio  String
   user User   @relation(fields: [userId], references: [id])
 
+  userId Int @unique
   @@map("profile")
-  userId Int
 }
 
 model Post {
@@ -43,9 +44,9 @@ model Post {
   topic     Topic     @relation(fields: [topicId], references: [id])
   comments  Comment[]
 
-  @@map("post")
   userId  Int
   topicId Int
+  @@map("post")
 }
 
 model Comment {
@@ -56,9 +57,9 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   edited    Boolean  @default(false)
 
-  @@map("comment")
   userId Int
   postId Int
+  @@map("comment")
 }
 
 model Topic {
@@ -68,8 +69,8 @@ model Topic {
   posts       Post[]
   category    Category @relation(fields: [categoryId], references: [id])
 
-  @@map("topic")
   categoryId Int
+  @@map("topic")
 }
 
 model Category {
@@ -98,9 +99,9 @@ model Message {
   author    User     @relation(fields: [userId], references: [id])
   chat      Chat     @relation(fields: [chatId], references: [id])
 
-  @@map("message")
   userId Int
   chatId Int
+  @@map("message")
 }
 
 enum Role {
