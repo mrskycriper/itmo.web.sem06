@@ -84,7 +84,7 @@ model Category {
 
 model Chat {
   id          Int       @id @default(autoincrement())
-  name        String?
+  name        String
   description String?
   users       User[]
   messages    Message[]
