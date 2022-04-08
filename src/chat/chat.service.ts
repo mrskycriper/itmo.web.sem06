@@ -5,7 +5,7 @@ import { EditChatDto } from './dto/edit-chat.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 
 @Injectable()
-export class ChatsService {
+export class ChatService {
   async getAllChats(): Promise<object> {
     return {
       title: 'Чаты - OpenForum',

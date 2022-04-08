@@ -7,17 +7,17 @@ import {
   Post,
   Render,
 } from '@nestjs/common';
-import { ChatsService } from './chats.service';
+import { ChatService } from './chat.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChatEntity } from './entity/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { EditChatDto } from './dto/edit-chat.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 
-@ApiTags('chats')
+@ApiTags('chat')
 @Controller()
-export class ChatsController {
-  constructor(private readonly chatsService: ChatsService) {}
+export class ChatController {
+  constructor(private readonly chatsService: ChatService) {}
 
   @ApiOperation({ summary: 'Render user chats' })
   @ApiResponse({

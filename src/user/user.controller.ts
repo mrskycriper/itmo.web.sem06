@@ -7,7 +7,7 @@ import {
   Post,
   Render,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UserService } from './user.service';
 import { Profile, Role } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,10 +17,10 @@ import { UserEntity } from './entity/user.entity';
 import { ProfileEntity } from './entity/profile.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
-@ApiTags('users')
+@ApiTags('user')
 @Controller()
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class UserController {
+  constructor(private readonly usersService: UserService) {}
 
   @ApiOperation({ summary: 'Render login page' })
   @ApiResponse({

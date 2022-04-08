@@ -8,7 +8,7 @@ import {
   Post,
   Render,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
+import { PostService } from './post.service';
 import { CreateCategoryDto } from './dto/create.category.dto';
 import { EditCategoryDto } from './dto/edit.category.dto';
 import { CreateTopicDto } from './dto/create.topic.dto';
@@ -18,10 +18,10 @@ import { EditPostDto } from './dto/edit.post.dto';
 import { CreateCommentDto } from './dto/create.comment.dto';
 import { EditCommentDto } from './dto/edit.comment.dto';
 
-@ApiTags('posts')
+@ApiTags('post')
 @Controller()
-export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+export class PostController {
+  constructor(private readonly postsService: PostService) {}
 
   @ApiOperation({ summary: 'Renders category list' })
   @ApiResponse({

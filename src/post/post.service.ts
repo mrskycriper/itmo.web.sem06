@@ -9,7 +9,7 @@ import { CreateCommentDto } from './dto/create.comment.dto';
 import { EditCommentDto } from './dto/edit.comment.dto';
 
 @Injectable()
-export class PostsService {
+export class PostService {
   async getAllCategory() {
     return {
       title: 'Категории - OpenForum',
