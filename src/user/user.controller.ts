@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Render,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -40,7 +41,7 @@ export class UserController {
     description: 'User was created.',
   })
   @ApiResponse({
-    status: 500,
+    status: 400,
     description: 'Nickname occupied.',
   })
   @Post('user')
@@ -81,7 +82,7 @@ export class UserController {
     status: 404,
     description: 'User not found.',
   })
-  @Post('user/:userId/update')
+  @Put('user/:userId')
   async updateUser(@Body('updateUserDto') updateUserDto: UpdateUserDto) {
     return await this.usersService.updateUser(updateUserDto);
   }
@@ -101,7 +102,7 @@ export class UserController {
     status: 404,
     description: 'User not found.',
   })
-  @Post('user/:userId/role')
+  @Put('user/:userId/role')
   async updateRole(@Param('userId') userId: number, @Param('role') role: Role) {
     return await this.usersService.updateRole(userId, role);
   }
@@ -126,7 +127,7 @@ export class UserController {
   @ApiParam({ name: 'updateProfileDto', type: 'UpdateProfileDto' })
   @ApiResponse({
     status: 201,
-    description: 'Bio was updated.',
+    description: 'Profile was updated.',
   })
   @ApiResponse({
     status: 403,
@@ -136,7 +137,7 @@ export class UserController {
     status: 404,
     description: 'User not found.',
   })
-  @Post('user/:userId/profile')
+  @Put('user/:userId/profile')
   async changeBio(
     @Body('updateProfileDto') updateProfileDto: UpdateProfileDto,
   ) {
