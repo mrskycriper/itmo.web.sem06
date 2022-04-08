@@ -5,11 +5,11 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Render,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ChatEntity } from './entity/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { EditChatDto } from './dto/edit-chat.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -122,7 +122,7 @@ export class ChatController {
     status: 404,
     description: 'Chat or/and user doesnt exist.',
   })
-  @Delete('chat/:chatId/:userId')
+  @Delete('chat/:chatId/users/:userId')
   async removeUser(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -144,7 +144,7 @@ export class ChatController {
     status: 404,
     description: 'Chat not found.',
   })
-  @Post('chat/:chatId/edit')
+  @Put('chat/:chatId')
   async editChat(@Body('editChatDto') editChatDto: EditChatDto) {
     return this.chatsService.editChat(editChatDto);
   }
