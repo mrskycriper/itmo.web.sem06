@@ -13,7 +13,7 @@ import { ProfileEntity } from './entity/profile.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   async createUser(createUserDto: CreateUserDto) {
     throw new NotImplementedException();
   }
