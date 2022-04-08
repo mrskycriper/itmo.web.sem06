@@ -117,7 +117,7 @@ export class CategoryController {
     status: 404,
     description: 'Category not found.',
   })
-  @Post('category/:categoryId')
+  @Post('category/:categoryId/topics')
   async createTopic(@Body('createTopicDto') createTopicDto: CreateTopicDto) {
     return this.categoryService.createTopic(createTopicDto);
   }
