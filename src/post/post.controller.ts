@@ -91,7 +91,7 @@ export class PostController {
     status: 404,
     description: 'Post not found.',
   })
-  @Post('post/:postId')
+  @Post('post/:postId/comments')
   async createComment(
     @Body('createCommentDto') createCommentDto: CreateCommentDto,
   ) {

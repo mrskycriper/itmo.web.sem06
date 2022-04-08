@@ -82,7 +82,7 @@ export class TopicController {
     status: 404,
     description: 'Topic not found.',
   })
-  @Post('topic/:topicId')
+  @Post('topic/:topicId/posts')
   async createPost(@Body('createPostDto') createPostDto: CreatePostDto) {
     return this.topicService.createPost(createPostDto);
   }
