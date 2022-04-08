@@ -4,7 +4,7 @@ import {
   NotImplementedException,
   Param,
 } from '@nestjs/common';
-import { Profile } from '@prisma/client';
+import { Profile, Role } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -22,7 +22,7 @@ export class UsersService {
     throw new NotImplementedException();
   }
 
-  async updateUser(userId: number, updateUserDto: UpdateUserDto) {
+  async updateUser(updateUserDto: UpdateUserDto) {
     throw new NotImplementedException();
   }
 
@@ -43,7 +43,15 @@ export class UsersService {
     throw new NotImplementedException();
   }
 
-  async updateBio(userId: number, updateProfileDto: UpdateProfileDto) {
+  async updateBio(updateProfileDto: UpdateProfileDto) {
     throw new NotImplementedException();
+  }
+
+  async updateRole(userId: number, role: Role) {
+    throw new NotImplementedException();
+  }
+
+  async getLogin() {
+    return { title: 'Авторизация - OpenForum' };
   }
 }

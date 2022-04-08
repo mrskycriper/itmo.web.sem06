@@ -1,43 +1,23 @@
-import {
-  Get,
-  Controller,
-  Render,
-  Post,
-  Req,
-  Res,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Get, Controller, Render, UseInterceptors } from '@nestjs/common';
 
-import { Response, Request } from 'express';
 import { TimerInterceptor } from './timer-interceptor.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AppService } from './app.service';
 
-@ApiTags('default')
+@ApiTags('app')
 @UseInterceptors(TimerInterceptor)
 @Controller()
 export class AppController {
+  constructor(private readonly appService: AppService) {}
+
   @ApiOperation({ summary: 'Render main page' })
+  @ApiResponse({
+    status: 200,
+    description: 'Main page rendered.',
+  })
   @Get('/')
   @Render('main')
-  renderMain() {
-    return {
-      title: 'Главная - OpenForum',
-      authorised: true,
-      username: 'username',
-    };
-  }
-
-  @ApiOperation({ summary: 'Render login page' })
-  @Get('/login')
-  @Render('login')
-  renderLogin() {
-    return { title: 'Авторизация - OpenForum' };
-  }
-
-  @ApiOperation({ summary: 'Render topics page' })
-  @Get('/topics')
-  @Render('topics')
-  renderTopics() {
-    return { title: 'Разделы - OpenForum' };
+  async getMain() {
+    return this.appService.getMain();
   }
 }

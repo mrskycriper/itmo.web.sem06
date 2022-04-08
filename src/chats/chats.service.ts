@@ -6,7 +6,7 @@ import { CreateMessageDto } from './dto/create-message.dto';
 
 @Injectable()
 export class ChatsService {
-  async getAllChats(userId: number): Promise<object> {
+  async getAllChats(): Promise<object> {
     return {
       title: 'Чаты - OpenForum',
       authorised: true,
@@ -14,10 +14,10 @@ export class ChatsService {
     };
   }
 
-  async getChat(chatId: number, userId: number): Promise<object> {
+  async getChat(chatId: number): Promise<object> {
     return {
       chatId: chatId,
-      title: chatId + ' - OpenForum',
+      title: 'Чат ' + chatId + ' - OpenForum',
       authorised: true,
       username: 'username',
     };
@@ -47,7 +47,7 @@ export class ChatsService {
     throw new NotImplementedException();
   }
 
-  async deleteMessage(chatId: number, messageId: number) {
+  async deleteMessage(messageId: number) {
     throw new NotImplementedException();
   }
 }
