@@ -8,7 +8,7 @@ import {
   Render,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Profile } from '@prisma/client';
+import { Profile, Role } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -18,9 +18,20 @@ import { ProfileEntity } from './entity/profile.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('users')
-@Controller('users')
+@Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiOperation({ summary: 'Render login page' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login page rendered.',
+  })
+  @Get('/login')
+  @Render('login')
+  async renderLogin() {
+    return await this.usersService.getLogin();
+  }
 
   @ApiOperation({ summary: 'Create new user' })
   @ApiParam({ name: 'createUserDto', type: 'CreateUserDto' })
@@ -32,7 +43,7 @@ export class UsersController {
     status: 500,
     description: 'Nickname occupied.',
   })
-  @Post('create')
+  @Post('user')
   async createUser(@Body('createUserDto') createUserDto: CreateUserDto) {
     return await this.usersService.createUser(createUserDto);
   }
@@ -51,13 +62,12 @@ export class UsersController {
     status: 404,
     description: 'User not found.',
   })
-  @Delete(':userId')
+  @Delete('user/:userId')
   async deleteUser(@Param('userId') userId: number) {
     return await this.usersService.deleteUser(userId);
   }
 
   @ApiOperation({ summary: 'Update user data' })
-  @ApiParam({ name: 'userId', type: 'number' })
   @ApiParam({ name: 'updateUserDto', type: 'UpdateUserDto' })
   @ApiResponse({
     status: 201,
@@ -67,12 +77,33 @@ export class UsersController {
     status: 403,
     description: 'Access denied.',
   })
-  @Post(':userId/update')
-  async updateUser(
-    @Param('userId') userId: number,
-    @Body('updateUserDto') updateUserDto: UpdateUserDto,
-  ) {
-    return await this.usersService.updateUser(userId, updateUserDto);
+  @ApiResponse({
+    status: 404,
+    description: 'User not found.',
+  })
+  @Post('user/:userId/update')
+  async updateUser(@Body('updateUserDto') updateUserDto: UpdateUserDto) {
+    return await this.usersService.updateUser(updateUserDto);
+  }
+
+  @ApiOperation({ summary: 'Change user role' })
+  @ApiParam({ name: 'userId', type: 'number' })
+  @ApiParam({ name: 'role', type: 'Role' })
+  @ApiResponse({
+    status: 201,
+    description: 'User role updated.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Access denied.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found.',
+  })
+  @Post('user/:userId/role')
+  async updateRole(@Param('userId') userId: number, @Param('role') role: Role) {
+    return await this.usersService.updateRole(userId, role);
   }
 
   @ApiOperation({ summary: 'Render users profile' })
@@ -85,14 +116,13 @@ export class UsersController {
     status: 404,
     description: 'User not found.',
   })
-  @Get(':userId/profile')
+  @Get('user/:userId/profile')
   @Render('user-profile')
   async getUserProfile(@Param('userId') userId: number): Promise<object> {
     return await this.usersService.getUserProfile(userId);
   }
 
   @ApiOperation({ summary: 'Update users profile data' })
-  @ApiParam({ name: 'userId', type: 'number' })
   @ApiParam({ name: 'updateProfileDto', type: 'UpdateProfileDto' })
   @ApiResponse({
     status: 201,
@@ -106,12 +136,11 @@ export class UsersController {
     status: 404,
     description: 'User not found.',
   })
-  @Post(':userId/profile/bio')
+  @Post('user/:userId/profile')
   async changeBio(
-    @Param('userId') userId: number,
     @Body('updateProfileDto') updateProfileDto: UpdateProfileDto,
   ) {
-    return await this.usersService.updateBio(userId, updateProfileDto);
+    return await this.usersService.updateBio(updateProfileDto);
   }
 
   @ApiOperation({ summary: 'Log in as user' })
@@ -128,7 +157,7 @@ export class UsersController {
     status: 404,
     description: 'User not found.',
   })
-  @Post('login')
+  @Post('user/login')
   async login(@Body('loginDto') loginDto: LoginDto) {
     return await this.usersService.login(loginDto);
   }
@@ -140,9 +169,9 @@ export class UsersController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bat request.',
+    description: 'Bad request.',
   })
-  @Post('logout')
+  @Post('user/logout')
   async logout() {
     return await this.usersService.logout();
   }

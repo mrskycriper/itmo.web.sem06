@@ -15,33 +15,27 @@ import { EditChatDto } from './dto/edit-chat.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 
 @ApiTags('chats')
-@Controller('chats')
+@Controller()
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
-  @ApiOperation({ summary: 'Render all users chats' })
-  @ApiParam({ name: 'userId', type: 'number' })
+  @ApiOperation({ summary: 'Render user chats' })
   @ApiResponse({
     status: 200,
     description: 'Chats found.',
   })
   @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
-  })
-  @ApiResponse({
     status: 404,
     description: 'No chats found.',
   })
-  @Get('')
+  @Get('chat')
   @Render('chat-list')
-  async getAllChats(@Param('userId') userId: number): Promise<object> {
-    return this.chatsService.getAllChats(userId);
+  async getAllChats(): Promise<object> {
+    return this.chatsService.getAllChats();
   }
 
   @ApiOperation({ summary: 'Render single chat' })
   @ApiParam({ name: 'chatId', type: 'number' })
-  @ApiParam({ name: 'userId', type: 'number' })
   @ApiResponse({
     status: 200,
     description: 'Chat found.',
@@ -54,13 +48,10 @@ export class ChatsController {
     status: 404,
     description: 'Chat not found.',
   })
-  @Get(':chatId')
+  @Get('chat/:chatId')
   @Render('chat')
-  async getChat(
-    @Param('chatId') chatId: number,
-    @Param('userId') userId: number,
-  ): Promise<object> {
-    return this.chatsService.getChat(chatId, userId);
+  async getChat(@Param('chatId') chatId: number): Promise<object> {
+    return this.chatsService.getChat(chatId);
   }
 
   @ApiOperation({ summary: 'Create new chat' })
@@ -69,7 +60,7 @@ export class ChatsController {
     status: 201,
     description: 'Chat created.',
   })
-  @Post('create')
+  @Post('chat')
   async createChat(@Body('createChatDto') createChatDto: CreateChatDto) {
     return this.chatsService.createChat(createChatDto);
   }
@@ -88,7 +79,7 @@ export class ChatsController {
     status: 404,
     description: 'Chat not found.',
   })
-  @Post(':chatId/delete')
+  @Delete('chat/:chatId')
   async deleteChat(@Param('chatId') chatId: number) {
     return this.chatsService.deleteChat(chatId);
   }
@@ -108,7 +99,7 @@ export class ChatsController {
     status: 404,
     description: 'Chat or/and user doesnt exist.',
   })
-  @Post(':chatId/invite')
+  @Post('chat/:chatId/invite')
   async inviteUser(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -131,7 +122,7 @@ export class ChatsController {
     status: 404,
     description: 'Chat or/and user doesnt exist.',
   })
-  @Post(':chatId/remove/:userId')
+  @Delete('chat/:chatId/:userId')
   async removeUser(
     @Param('chatId') chatId: number,
     @Param('userId') userId: number,
@@ -153,7 +144,7 @@ export class ChatsController {
     status: 404,
     description: 'Chat not found.',
   })
-  @Post(':chatId/edit')
+  @Post('chat/:chatId/edit')
   async editChat(@Body('editChatDto') editChatDto: EditChatDto) {
     return this.chatsService.editChat(editChatDto);
   }
@@ -172,7 +163,7 @@ export class ChatsController {
     status: 404,
     description: 'Chat not found.',
   })
-  @Post(':chatId/post')
+  @Post('chat/:chatId')
   async postMessage(
     @Body('createMessageDto') createMessageDto: CreateMessageDto,
   ) {
@@ -180,7 +171,6 @@ export class ChatsController {
   }
 
   @ApiOperation({ summary: 'Delete message' })
-  @ApiParam({ name: 'chatId', type: 'number' })
   @ApiParam({ name: 'messageId', type: 'number' })
   @ApiResponse({
     status: 204,
@@ -194,11 +184,8 @@ export class ChatsController {
     status: 404,
     description: 'Chat or/and message doesnt exist.',
   })
-  @Post(':chatId/:messageId/delete')
-  async deleteMessage(
-    @Param('chatId') chatId: number,
-    @Param('messageId') messageId: number,
-  ) {
-    return this.chatsService.deleteMessage(chatId, messageId);
+  @Delete('messages/:messageId')
+  async deleteMessage(@Param('messageId') messageId: number) {
+    return this.chatsService.deleteMessage(messageId);
   }
 }

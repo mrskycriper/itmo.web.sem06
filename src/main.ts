@@ -18,6 +18,16 @@ import { CreateMessageDto } from './chats/dto/create-message.dto';
 import { CreateChatDto } from './chats/dto/create-chat.dto';
 import { EditChatDto } from './chats/dto/edit-chat.dto';
 import { UpdateProfileDto } from './users/dto/update-profile.dto';
+import { TopicEntity } from './posts/entity/topic.entity';
+import { PostEntity } from './posts/entity/post.entity';
+import { CreateCategoryDto } from './posts/dto/create.category.dto';
+import { CreateTopicDto } from './posts/dto/create.topic.dto';
+import { CreatePostDto } from './posts/dto/create.post.dto';
+import { CreateCommentDto } from './posts/dto/create.comment.dto';
+import { EditCategoryDto } from './posts/dto/edit.category.dto';
+import { EditTopicDto } from './posts/dto/edit.topic.dto';
+import { EditPostDto } from './posts/dto/edit.post.dto';
+import { EditCommentDto } from './posts/dto/edit.comment.dto';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -28,6 +38,7 @@ async function bootstrap() {
     join(__dirname, '..', 'views'),
     join(__dirname, '..', 'views', 'partials'),
     join(__dirname, '..', 'views', 'content'),
+    join(__dirname, '..', 'views', 'content', 'posts'),
   ]);
   app.setViewEngine('pug');
   app.use(cookieParser());
@@ -42,16 +53,31 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config, {
     extraModels: [
       UserEntity,
-      CreateUserDto,
-      UpdateUserDto,
-      LoginDto,
-      UpdateProfileDto,
       ProfileEntity,
       ChatEntity,
       MessageEntity,
+      ChatEntity,
+      TopicEntity,
+      PostEntity,
+      MessageEntity,
+
+      CreateUserDto,
+      LoginDto,
+      UpdateUserDto,
+      UpdateProfileDto,
+
       CreateChatDto,
-      CreateMessageDto,
       EditChatDto,
+      CreateMessageDto,
+
+      CreateCategoryDto,
+      CreateTopicDto,
+      CreatePostDto,
+      CreateCommentDto,
+      EditCategoryDto,
+      EditTopicDto,
+      EditPostDto,
+      EditCommentDto,
     ],
   });
   SwaggerModule.setup('api', app, document);
