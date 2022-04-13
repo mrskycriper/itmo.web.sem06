@@ -8,12 +8,15 @@ import {
   Post,
   Put,
   Render,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TopicService } from './topic.service';
 import { EditTopicDto } from './dto/edit.topic.dto';
 import { CreatePostDto } from '../post/dto/create.post.dto';
+import { TimerInterceptor } from '../timer-interceptor.service';
 
 @ApiTags('topic')
+@UseInterceptors(TimerInterceptor)
 @Controller()
 export class TopicController {
   constructor(private readonly topicService: TopicService) {}

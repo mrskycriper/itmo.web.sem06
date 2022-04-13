@@ -28,6 +28,7 @@ import { EditCategoryDto } from './category/dto/edit.category.dto';
 import { EditTopicDto } from './topic/dto/edit.topic.dto';
 import { EditPostDto } from './post/dto/edit.post.dto';
 import { EditCommentDto } from './post/dto/edit.comment.dto';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -82,7 +83,7 @@ async function bootstrap() {
   });
   SwaggerModule.setup('api', app, document);
 
-  console.log(typeof { title: 'hello' });
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(configService.get<number>('PORT'));
 }

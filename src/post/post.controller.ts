@@ -8,13 +8,16 @@ import {
   Post,
   Put,
   Render,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { EditPostDto } from './dto/edit.post.dto';
 import { CreateCommentDto } from './dto/create.comment.dto';
 import { EditCommentDto } from './dto/edit.comment.dto';
+import { TimerInterceptor } from '../timer-interceptor.service';
 
 @ApiTags('post')
+@UseInterceptors(TimerInterceptor)
 @Controller()
 export class PostController {
   constructor(private readonly postService: PostService) {}

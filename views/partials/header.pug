@@ -1,16 +1,21 @@
-nav(class="navigation-bar")
-    p OpenForum
-    a(href="/" id="main-page") Главная
-    a(href="/category" id="forum-page") Тематические разделы
+div(class="nav-header")
+    p(class="nav-header__logo") OpenForum
+    nav(class="nav-header__container")
+        a(href="/" id="main-page" class="nav-header__button") Главная
+        a(href="/category" id="forum-page" class="nav-header__button") Тематические разделы
 
-    if !authorised
-        a(href="/login" id="chat-page") Чаты
-        div(class="user-card")
-            img(src="/images/profile.png" class="avatar")
-            a(href="/login") Войти
-    else
-        a(href="/chat" id="chat-page") Чаты
-        div(class="user-card")
-            img(src="/images/profile.png" class="avatar")
-            a(href="/user/-1/profile") #{username}
+        if !authorised
+            a(href="/login" id="chat-page" class="nav-header__button") Чаты
+        else
+            a(href="/chat" id="chat-page" class="nav-header__button") Чаты
+
+    div(class="nav-header__profile")
+        if !authorised
+            img(src="/images/profile.png" class="nav-header__profile-picture")
+            a(href="/login" class="nav-header__profile-name") Войти
+        else
+            img(src="https://ui-avatars.com/api/?name=" + username + "&background=random&rounded=true&size=48" class="nav-header__profile-picture")
+            a(href="/user/-1/profile" class="nav-header__profile-name") #{username}
+
+
 
