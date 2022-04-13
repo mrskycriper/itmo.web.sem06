@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class UpdateProfileDto {
-  @ApiProperty({ example: "I'm a teapot", description: 'Users biography' })
-  bio: string;
+  @IsString()
+  @ApiProperty({
+    example: 'Im a teapot',
+    description: 'Users biography',
+    required: false,
+  })
+  readonly bio: string;
 }

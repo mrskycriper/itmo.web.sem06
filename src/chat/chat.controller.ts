@@ -7,14 +7,17 @@ import {
   Post,
   Put,
   Render,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { EditChatDto } from './dto/edit-chat.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { TimerInterceptor } from '../timer-interceptor.service';
 
 @ApiTags('chat')
+@UseInterceptors(TimerInterceptor)
 @Controller()
 export class ChatController {
   constructor(private readonly chatsService: ChatService) {}

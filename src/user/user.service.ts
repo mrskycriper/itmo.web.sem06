@@ -1,5 +1,6 @@
 import {
   Body,
+  HttpException,
   Injectable,
   NotImplementedException,
   Param,
@@ -11,27 +12,55 @@ import { LoginDto } from './dto/login.dto';
 import { UserEntity } from './entity/user.entity';
 import { ProfileEntity } from './entity/profile.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import prisma from '../client';
 
 @Injectable()
 export class UserService {
   async createUser(createUserDto: CreateUserDto) {
-    throw new NotImplementedException();
+    const user = await prisma.user.create({
+      data: createUserDto,
+    });
+    await prisma.profile.create({
+      data: { bio: '', userId: user.id },
+    });
   }
 
-  async deleteUser(id: number) {
-    throw new NotImplementedException();
+  async deleteUser(userId: number) {
+    await prisma.profile.delete({
+      where: {
+        userId: Number(userId),
+      },
+    });
+    await prisma.user.delete({
+      where: {
+        id: Number(userId),
+      },
+    });
   }
 
-  async updateUser(updateUserDto: UpdateUserDto) {
-    throw new NotImplementedException();
+  async updateUser(userId: number, updateUserDto: UpdateUserDto) {
+    prisma.user.update({
+      where: {
+        id: Number(userId),
+      },
+      data: updateUserDto,
+    });
   }
 
   async getUserProfile(userId: number): Promise<object> {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userId) },
+    });
+    const profile = await prisma.profile.findUnique({
+      where: { userId: Number(userId) },
+    });
     return {
       userId: userId,
-      title: 'Профиль ' + userId + ' - OpenForum',
+      title: 'Профиль ' + user.name + ' - OpenForum',
       authorised: true,
-      username: 'username',
+      username: user.name,
+      bio: profile.bio,
+      role: user.role.toString(),
     };
   }
 
@@ -43,12 +72,18 @@ export class UserService {
     throw new NotImplementedException();
   }
 
-  async updateBio(updateProfileDto: UpdateProfileDto) {
-    throw new NotImplementedException();
+  async updateProfile(userId: number, updateProfileDto: UpdateProfileDto) {
+    await prisma.profile.update({
+      where: { userId: Number(userId) },
+      data: updateProfileDto,
+    });
   }
 
   async updateRole(userId: number, role: Role) {
-    throw new NotImplementedException();
+    await prisma.user.update({
+      where: { id: Number(userId) },
+      data: { role: role },
+    });
   }
 
   async getLogin() {

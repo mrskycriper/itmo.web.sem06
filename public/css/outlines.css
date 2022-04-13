@@ -34,9 +34,6 @@ html,
 body {
     margin: 0;
     font-family: "Montserrat", sans-serif;
-    /*font-size: 14px;
-    font-size: 1.5vmax;*/
-    line-height: 20px;
     height: 100%;
 }
 
@@ -46,80 +43,9 @@ body {
     min-height: 100vh;
 }
 
-footer {
-    flex-grow: 0
-}
-
 main {
     flex-grow: 1
 }
-
-
-footer {
-    padding: 10px;
-
-    background-color: #1881B5;
-    font-weight: bold;
-    text-align: center;
-
-}
-
-
-footer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    align-items: center;
-}
-
-
-footer {
-    box-sizing: border-box;
-    width: 100%;
-
-    font-size: 14px;
-}
-
-
-a {
-    text-decoration: none;
-}
-
-
-footer > p,
-footer > a:link,
-footer > a:visited {
-    display: inline-block;
-
-    padding: 15px;
-    margin: 10px;
-
-    border-radius: 10px;
-    color: white;
-}
-
-
-footer > p {
-    border: 3px dashed white;
-}
-
-
-footer > a:link,
-footer > a:visited {
-    border: 3px solid #1EA5E8;
-    background-color: #1EA5E8;
-}
-
-footer > a:hover,
-footer > a:active {
-    border: 3px solid #1EA5E8;
-    background-color: #2196d2;
-}
-
-.clearfix {
-    clear: both;
-}
-
 
 h1 {
     margin: 10px;
