@@ -3,19 +3,14 @@ div(class="nav-header")
     nav(class="nav-header__container")
         a(href="/" id="main-page" class="nav-header__button") Главная
         a(href="/category" id="forum-page" class="nav-header__button") Тематические разделы
-
-        if !authorised
-            a(href="/login" id="chat-page" class="nav-header__button") Чаты
-        else
-            a(href="/chat" id="chat-page" class="nav-header__button") Чаты
-
+        a(href="/chat" id="chat-page" class="nav-header__button") Чаты
     div(class="nav-header__profile")
         if !authorised
             img(src="/images/profile.png" class="nav-header__profile-picture")
             a(href="/login" class="nav-header__profile-name") Войти
         else
             img(src="https://ui-avatars.com/api/?name=" + username + "&background=random&rounded=true&size=48" class="nav-header__profile-picture")
-            a(href="/user/-1/profile" class="nav-header__profile-name") #{username}
+            a(href="/user/" + userid + "/profile" class="nav-header__profile-name") #{username}
 
 
 

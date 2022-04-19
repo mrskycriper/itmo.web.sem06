@@ -17,6 +17,7 @@
 }
 
 .nav-header__logo {
+    font-family: "XO Verbena", sans-serif;
     display: inline-block;
     padding: 15px;
     margin: auto;
@@ -24,6 +25,7 @@
     color: white;
     font-size: 40px;
     flex-grow: 0;
+    cursor: default;
 }
 
 .nav-header__container {
@@ -44,6 +46,7 @@
     background-color: #1EA5E8;
     box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
     text-decoration: none;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .nav-header__button:hover {
@@ -70,42 +73,6 @@
     text-decoration: none;
 }
 
-.nav-header__button--current-page:any-link {
-    text-decoration-line: underline;
-    display: inline-block;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 10px;
-    color: white;
-    border: none;
-    background-color: #1EA5E8;
-    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
-}
-
-.nav-header__button--current-page:hover {
-    text-decoration-line: underline;
-    display: inline-block;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 10px;
-    color: white;
-    border: none;
-    background-color: #1EA5E8;
-    box-shadow: none;
-}
-
-.nav-header__button--current-page:active {
-    text-decoration-line: underline;
-    display: inline-block;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 10px;
-    color: white;
-    border: none;
-    background-color: #1EA5E8;
-    box-shadow: inset 0 0 5px 5px rgba(0, 0, 0, 0.1);
-}
-
 .nav-header__profile {
     color: white;
     border: 3px solid white;
@@ -115,6 +82,7 @@
     padding: 10px;
     align-items: center;
     flex-grow: 0;
+
 }
 
 .nav-header__profile-picture {

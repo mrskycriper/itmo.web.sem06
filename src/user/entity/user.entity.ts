@@ -1,4 +1,3 @@
-import { Role } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserEntity {
@@ -24,8 +23,14 @@ export class UserEntity {
   name: string;
 
   @ApiProperty({
-    example: 'USER',
-    description: 'Users role on a forum',
+    example: 'false',
+    description: 'Defines if user has a moderator role',
   })
-  role: Role;
+  isModerator: boolean;
+
+  @ApiProperty({
+    example: 'false',
+    description: 'Defines if user has an admin role',
+  })
+  isAdmin: boolean;
 }

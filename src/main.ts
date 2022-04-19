@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -8,8 +8,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import { UserEntity } from './user/entity/user.entity';
-import { CreateUserDto } from './user/dto/create-user.dto';
-import { UpdateUserDto } from './user/dto/update-user.dto';
+import { CreateUserDto } from './user/dto/create.user.dto';
+import { UpdateUserDto } from './user/dto/update.user.dto';
 import { LoginDto } from './user/dto/login.dto';
 import { ProfileEntity } from './user/entity/profile.entity';
 import { ChatEntity } from './chat/entity/chat.entity';
@@ -17,7 +17,7 @@ import { MessageEntity } from './chat/entity/message.entity';
 import { CreateMessageDto } from './chat/dto/create-message.dto';
 import { CreateChatDto } from './chat/dto/create-chat.dto';
 import { EditChatDto } from './chat/dto/edit-chat.dto';
-import { UpdateProfileDto } from './user/dto/update-profile.dto';
+import { UpdateProfileDto } from './user/dto/update.profile.dto';
 import { TopicEntity } from './topic/entity/topic.entity';
 import { PostEntity } from './post/entity/post.entity';
 import { CreateCategoryDto } from './category/dto/create.category.dto';
@@ -29,6 +29,7 @@ import { EditTopicDto } from './topic/dto/edit.topic.dto';
 import { EditPostDto } from './post/dto/edit.post.dto';
 import { EditCommentDto } from './post/dto/edit.comment.dto';
 import { ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from './all.exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -81,9 +82,14 @@ async function bootstrap() {
       EditCommentDto,
     ],
   });
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      operationsSorter: 'method',
+    },
+  });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(HttpAdapterHost)));
 
   await app.listen(configService.get<number>('PORT'));
 }
