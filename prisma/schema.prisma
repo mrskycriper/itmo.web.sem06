@@ -15,10 +15,11 @@ model User {
   email        String    @unique
   passwordHash String
   name         String    @unique
-  role         Role      @default(USER)
+  isModerator  Boolean   @default(false)
+  isAdmin      Boolean   @default(false)
   posts        Post[]
   comments     Comment[]
-  Message      Message[]
+  messages     Message[]
   chats        Chat[]
   profile      Profile?
 
@@ -26,11 +27,11 @@ model User {
 }
 
 model Profile {
-  id   Int    @id @default(autoincrement())
-  bio  String
-  user User   @relation(fields: [userId], references: [id])
+  id     Int    @id @default(autoincrement())
+  bio    String
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
 
-  userId Int @unique
   @@map("profile")
 }
 
@@ -43,9 +44,9 @@ model Post {
   author    User      @relation(fields: [userId], references: [id])
   topic     Topic     @relation(fields: [topicId], references: [id])
   comments  Comment[]
+  userId    Int
+  topicId   Int
 
-  userId  Int
-  topicId Int
   @@map("post")
 }
 
@@ -56,9 +57,9 @@ model Comment {
   author    User     @relation(fields: [userId], references: [id])
   post      Post     @relation(fields: [postId], references: [id])
   edited    Boolean  @default(false)
+  userId    Int
+  postId    Int
 
-  userId Int
-  postId Int
   @@map("comment")
 }
 
@@ -68,8 +69,8 @@ model Topic {
   description String?
   posts       Post[]
   category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  Int
 
-  categoryId Int
   @@map("topic")
 }
 
@@ -98,14 +99,8 @@ model Message {
   createdAt DateTime @default(now())
   author    User     @relation(fields: [userId], references: [id])
   chat      Chat     @relation(fields: [chatId], references: [id])
+  userId    Int
+  chatId    Int
 
-  userId Int
-  chatId Int
   @@map("message")
-}
-
-enum Role {
-  USER
-  MODERATOR
-  ADMIN
 }
