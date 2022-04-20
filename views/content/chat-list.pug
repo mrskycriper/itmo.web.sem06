@@ -1,4 +1,13 @@
 extends ../template
 
 block content
-    h1 Чаты пользователя
+    div(class="chat-navigation__container")
+        a(href="" class="chat-navigation__button") ←
+        a(href="" class="chat-navigation__button") →
+    div(class="chat__container")
+        each val in chats
+            div(class="chat__card")
+                img(src="https://ui-avatars.com/api/?name=" + val.name + "&background=random&rounded=false&size=64?bold=true" class="chat__avatar")
+                div
+                    a(href="/chat/"+ val.chatId class="chat__header" )= val.name
+                    p(class="chat__description")= val.description

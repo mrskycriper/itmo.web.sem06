@@ -138,7 +138,7 @@ export class UserController {
     type: 'string',
     description: 'Unique user identifier',
   })
-  @ApiResponse({ status: 204, description: 'User deleted.' })
+  @ApiOkResponse({ description: 'User deleted.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiForbiddenResponse({ description: 'Forbidden operation.' })
   @ApiNotFoundResponse({ description: 'User not found.' })

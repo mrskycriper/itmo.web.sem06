@@ -4,16 +4,29 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Render,
   UseInterceptors,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { EditChatDto } from './dto/edit-chat.dto';
-import { CreateMessageDto } from './dto/create-message.dto';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import { CreateChatDto } from './dto/create.chat.dto';
+import { EditChatDto } from './dto/edit.chat.dto';
+import { CreateMessageDto } from './dto/create.message.dto';
 import { TimerInterceptor } from '../timer-interceptor.service';
 
 @ApiTags('chat')
@@ -23,172 +36,208 @@ export class ChatController {
   constructor(private readonly chatsService: ChatService) {}
 
   @ApiOperation({ summary: 'Render user chats' })
-  @ApiResponse({
-    status: 200,
-    description: 'Chats found.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'No chats found.',
-  })
+  @ApiOkResponse({ description: 'Chats found.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiNotFoundResponse({ description: 'Chats not found.' })
   @Get('chat')
   @Render('chat-list')
-  async getAllChats(): Promise<object> {
-    return this.chatsService.getAllChats();
+  async getAllChats(
+    @Query('userId', ParseIntPipe) userId: number,
+  ): Promise<object> {
+    return this.chatsService.getAllChats(userId);
   }
 
   @ApiOperation({ summary: 'Render single chat' })
-  @ApiParam({ name: 'chatId', type: 'number' })
-  @ApiResponse({
-    status: 200,
-    description: 'Chat found.',
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat not found.',
-  })
+  @ApiOkResponse({ description: 'Chat found.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Get('chat/:chatId')
   @Render('chat')
-  async getChat(@Param('chatId') chatId: number): Promise<object> {
-    return this.chatsService.getChat(chatId);
+  async getChat(
+    @Query('userId', ParseIntPipe) userId: number,
+    @Param('chatId', ParseIntPipe) chatId: number,
+  ): Promise<object> {
+    return this.chatsService.getChat(userId, chatId);
   }
 
   @ApiOperation({ summary: 'Create new chat' })
-  @ApiParam({ name: 'createChatDto', type: 'CreateChatDto' })
-  @ApiResponse({
-    status: 201,
-    description: 'Chat created.',
+  @ApiQuery({
+    name: 'creatorId',
+    type: 'string',
+    description: 'Chat creator id',
   })
+  @ApiBody({ type: CreateChatDto })
+  @ApiCreatedResponse({ description: 'Chat created.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
   @Post('chat')
-  async createChat(@Body('createChatDto') createChatDto: CreateChatDto) {
-    return this.chatsService.createChat(createChatDto);
+  async createChat(
+    @Query('creatorId', ParseIntPipe) creatorId: number,
+    @Body() createChatDto: CreateChatDto,
+  ) {
+    return this.chatsService.createChat(creatorId, createChatDto);
   }
 
   @ApiOperation({ summary: 'Delete chat' })
-  @ApiParam({ name: 'chatId', type: 'number' })
-  @ApiResponse({
-    status: 204,
-    description: 'Chat deleted.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat not found.',
-  })
+  @ApiOkResponse({ description: 'Chat deleted.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Delete('chat/:chatId')
-  async deleteChat(@Param('chatId') chatId: number) {
-    return this.chatsService.deleteChat(chatId);
+  async deleteChat(
+    @Query('userId', ParseIntPipe) userId: number,
+    @Param('chatId', ParseIntPipe) chatId: number,
+  ) {
+    return this.chatsService.deleteChat(userId, chatId);
   }
 
   @ApiOperation({ summary: 'Invite user in chat' })
-  @ApiParam({ name: 'chatId', type: 'number' })
-  @ApiParam({ name: 'userId', type: 'number' })
-  @ApiResponse({
-    status: 200,
-    description: 'User invited.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 400,
-    description: 'User already in.',
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat or/and user doesnt exist.',
+  @ApiParam({
+    name: 'inviteId',
+    type: 'string',
+    description: 'Invited user id',
   })
-  @Post('chat/:chatId/invite')
+  @ApiCreatedResponse({ description: 'User invited.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat or user not found.' })
+  @Post('chat/:chatId/invite/:inviteId')
   async inviteUser(
-    @Param('chatId') chatId: number,
-    @Param('userId') userId: number,
+    @Query('userId', ParseIntPipe) userId: number,
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Param('inviteId', ParseIntPipe) inviteId: number,
   ) {
-    return this.chatsService.inviteUser(chatId, userId);
+    return this.chatsService.inviteUser(userId, chatId, inviteId);
   }
 
   @ApiOperation({ summary: 'Remove user from chat' })
-  @ApiParam({ name: 'chatId', type: 'number' })
-  @ApiParam({ name: 'userId', type: 'number' })
-  @ApiResponse({
-    status: 200,
-    description: 'User removed.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat or/and user doesnt exist.',
+  @ApiParam({
+    name: 'inviteId',
+    type: 'string',
+    description: 'Invited user id',
   })
-  @Delete('chat/:chatId/users/:userId')
+  @ApiOkResponse({ description: 'User removed.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat or user not found.' })
+  @Delete('chat/:chatId/users/:inviteId')
   async removeUser(
-    @Param('chatId') chatId: number,
-    @Param('userId') userId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Param('unInviteId', ParseIntPipe) unInviteId: number,
   ) {
-    return this.chatsService.removeUser(chatId, userId);
+    return this.chatsService.removeUser(userId, chatId, unInviteId);
   }
 
   @ApiOperation({ summary: 'Edit chat properties' })
-  @ApiParam({ name: 'editChatDto', type: 'EditChatDto' })
-  @ApiResponse({
-    status: 200,
-    description: 'Chat edited.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat not found.',
-  })
+  @ApiBody({ type: EditChatDto })
+  @ApiOkResponse({ description: 'Chat edited.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Put('chat/:chatId')
-  async editChat(@Body('editChatDto') editChatDto: EditChatDto) {
-    return this.chatsService.editChat(editChatDto);
+  async editChat(
+    @Query('userId', ParseIntPipe) userId: number,
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Body() editChatDto: EditChatDto,
+  ) {
+    return this.chatsService.editChat(userId, chatId, editChatDto);
   }
 
   @ApiOperation({ summary: 'Post new message' })
-  @ApiParam({ name: 'createMessageDto', type: 'CreateMessageDto' })
-  @ApiResponse({
-    status: 201,
-    description: 'Message posted.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat not found.',
-  })
+  @ApiBody({ type: CreateMessageDto })
+  @ApiCreatedResponse({ description: 'Message created.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Post('chat/:chatId')
   async postMessage(
-    @Body('createMessageDto') createMessageDto: CreateMessageDto,
+    @Query('userId', ParseIntPipe) userId: number,
+    @Body() createMessageDto: CreateMessageDto,
   ) {
-    return this.chatsService.postMessage(createMessageDto);
+    return this.chatsService.postMessage(userId, createMessageDto);
   }
 
   @ApiOperation({ summary: 'Delete message' })
-  @ApiParam({ name: 'messageId', type: 'number' })
-  @ApiResponse({
-    status: 204,
-    description: 'Message deleted.',
+  @ApiQuery({
+    name: 'userId',
+    type: 'string',
+    description: 'Temporary way to insert userid',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Access forbidden.',
+  @ApiParam({
+    name: 'messageId',
+    type: 'string',
+    description: 'Unique message identifier',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Chat or/and message doesnt exist.',
-  })
+  @ApiOkResponse({ description: 'Message removed.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiForbiddenResponse({ description: 'Access forbidden.' })
+  @ApiNotFoundResponse({ description: 'Chat or message not found.' })
   @Delete('messages/:messageId')
-  async deleteMessage(@Param('messageId') messageId: number) {
-    return this.chatsService.deleteMessage(messageId);
+  async deleteMessage(
+    @Query('userId', ParseIntPipe) userId: number,
+    @Param('messageId', ParseIntPipe) messageId: number,
+  ) {
+    return this.chatsService.deleteMessage(userId, messageId);
   }
 }
