@@ -98,8 +98,10 @@ export class UserService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    await prisma.profile.delete({ where: { userId: userId } });
-    await prisma.user.delete({ where: { id: userId } });
+    const deleteProfile = prisma.profile.delete({ where: { userId: userId } });
+    const deleteUser = prisma.user.delete({ where: { id: userId } });
+
+    await prisma.$transaction([deleteProfile, deleteUser]);
   }
 
   async getLogin() {

@@ -24,6 +24,7 @@ model User {
   profile      Profile?
 
   @@map("user")
+  ChatToUser ChatToUser[]
 }
 
 model Profile {
@@ -66,7 +67,7 @@ model Comment {
 model Topic {
   id          Int      @id @default(autoincrement())
   name        String
-  description String?
+  description String
   posts       Post[]
   category    Category @relation(fields: [categoryId], references: [id])
   categoryId  Int
@@ -77,7 +78,7 @@ model Topic {
 model Category {
   id          Int     @id @default(autoincrement())
   name        String
-  description String?
+  description String
   topics      Topic[]
 
   @@map("category")
@@ -86,21 +87,31 @@ model Category {
 model Chat {
   id          Int       @id @default(autoincrement())
   name        String
-  description String?
+  description String
   users       User[]
   messages    Message[]
 
   @@map("chat")
+  ChatToUser ChatToUser[]
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-  author    User     @relation(fields: [userId], references: [id])
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  userId    Int
-  chatId    Int
+  id         Int      @id @default(autoincrement())
+  content    String
+  createdAt  DateTime @default(now())
+  author     User     @relation(fields: [userId], references: [id])
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  userId     Int
+  chatId     Int
 
   @@map("message")
+}
+
+model ChatToUser {
+  chat   Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@id([chatId, userId])
 }

@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   @IsNotEmpty()
+  @MaxLength(32)
+  @MinLength(2)
   @ApiProperty({
     example: 'name',
     description: 'Username',

@@ -1,4 +1,11 @@
 extends ../template
 
 block content
-    h1 Чат с id = #{chatId}
+    h1 #{chatName}
+    div(class="chat__container")
+      each val in messageArray
+          div(class="chat__card")
+              img(src="https://ui-avatars.com/api/?name=" + val.userId + "&background=random&rounded=false&size=64?bold=true" class="chat__avatar")
+              div
+                  p(class="chat__header" )= val.userId
+                  p(class="chat__description")= val.content
