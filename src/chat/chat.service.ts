@@ -106,6 +106,7 @@ export class ChatService {
       orderBy: {
         createdAt: 'asc',
       },
+      include: { author: true },
     });
 
     return {

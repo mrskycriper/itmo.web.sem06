@@ -29,7 +29,7 @@ export class UserService {
 
     const user = await prisma.user.create({ data: createUserDto });
     await prisma.profile.create({
-      data: { bio: '', userId: user.id, username: user.name },
+      data: { bio: '', userId: user.id },
     });
   }
 
@@ -50,7 +50,7 @@ export class UserService {
 
     return {
       userId: userId,
-      title: 'Профиль ' + user.name + ' - OpenForum',
+      title: user.name + ' - OpenForum',
       authorised: true,
       username: user.name,
       bio: profile.bio,
@@ -61,34 +61,10 @@ export class UserService {
   async updateUser(userId: number, updateUserDto: UpdateUserDto) {
     await this._getUser(userId);
 
-    const updateUser = prisma.user.update({
+    await prisma.user.update({
       where: { id: userId },
       data: updateUserDto,
     });
-    const updateProfile = prisma.profile.update({
-      where: { userId: userId },
-      data: { username: updateUserDto.name },
-    });
-    const updateMessages = prisma.message.updateMany({
-      where: { userId: userId },
-      data: { username: updateUserDto.name },
-    });
-    const updatePosts = prisma.post.updateMany({
-      where: { userId: userId },
-      data: { username: updateUserDto.name },
-    });
-    const updateComments = prisma.comment.updateMany({
-      where: { userId: userId },
-      data: { username: updateUserDto.name },
-    });
-
-    await prisma.$transaction([
-      updateUser,
-      updateProfile,
-      updateMessages,
-      updatePosts,
-      updateComments,
-    ]);
   }
 
   async updateRole(userId: number, isModerator: boolean, isAdmin: boolean) {
