@@ -1,3 +1,5 @@
+
+
 .chat__container {
     padding: 5px;
     border-radius: 10px;
@@ -54,7 +56,7 @@
     border-radius: 10px;
     color: white;
     border: none;
-    background-color: #1EA5E8;
+    background-color: #1881B5;
     box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
     text-decoration: none;
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -67,7 +69,7 @@
     border-radius: 10px;
     color: white;
     border: none;
-    background-color: #1EA5E8;
+    background-color: #1881B5;
     box-shadow: none;
     text-decoration: none;
 }
@@ -79,7 +81,95 @@
     border-radius: 10px;
     color: white;
     border: none;
-    background-color: #1EA5E8;
+    background-color: #1881B5;
     box-shadow: inset 0 0 5px 5px rgba(0, 0, 0, 0.1);
     text-decoration: none;
+}
+
+.chat-navigation__page-count {
+    color: white;
+    text-align: center;
+    background-color: #1881B5;
+    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+}
+
+.chat__page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%
+}
+
+.message__container {
+    padding: 5px;
+    border-radius: 10px;
+    border: 2px dotted #1881B5;
+
+    margin: 10px auto;
+    max-width: 800px;
+    width: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.message__card {
+    margin: 10px;
+    padding: 10px;
+    background: #1881B5;
+    display: flex;
+    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    max-width: fit-content;
+}
+
+.message__avatar {
+    display: inline-block;
+    height: 32px;
+    width: 32px;
+    padding-right: 10px;
+}
+
+.message__header {
+    display: flex;
+    /*vertical-align: top;*/
+}
+
+.message__name {
+    display: inline-block;
+    margin: 0;
+    font-size: 16px;
+    /*line-height: 18px;*/
+    color: white;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+.message__date {
+    display: inline-block;
+    margin: 0;
+    font-size: 10px;
+    color: white;
+    padding-bottom: 5px;
+    padding-left: 10px;
+}
+
+.message__content {
+    margin: 0;
+    font-size: 14px;
+    /*line-height: 16px;*/
+    color: white;
+}
+
+.text-input__card {
+    padding: 5px;
+    border-radius: 10px;
+    border: 2px dotted #1881B5;
+
+    margin: 10px auto;
+    max-width: 800px;
+    flex-grow: 0;
 }

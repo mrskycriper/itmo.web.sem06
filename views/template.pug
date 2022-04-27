@@ -5,10 +5,11 @@ html(lang="ru")
         include includes
         title= title
         link(rel="icon" href="favicon.ico")
-    body
-        header
-            include partials/header
-        main
-            block content
-        footer()
-            include partials/footer
+        body
+            block body
+                header
+                    include partials/header
+                main
+                    block content
+                footer
+                    include partials/footer

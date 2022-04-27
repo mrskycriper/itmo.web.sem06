@@ -89,7 +89,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.useGlobalFilters(new AllExceptionsFilter(app.get(HttpAdapterHost)));
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.listen(configService.get<number>('PORT'));
 }

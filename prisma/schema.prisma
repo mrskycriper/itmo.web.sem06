@@ -23,14 +23,14 @@ model User {
   chats        Chat[]
   profile      Profile?
 
-  @@map("user")
   ChatToUser ChatToUser[]
+  @@map("user")
 }
 
 model Profile {
   id     Int    @id @default(autoincrement())
   bio    String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int    @unique
 
   @@map("profile")
@@ -42,8 +42,8 @@ model Post {
   title     String
   content   String
   published Boolean   @default(false)
-  author    User      @relation(fields: [userId], references: [id])
-  topic     Topic     @relation(fields: [topicId], references: [id])
+  author    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic     Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
   comments  Comment[]
   userId    Int
   topicId   Int
@@ -55,8 +55,8 @@ model Comment {
   id        Int      @id @default(autoincrement())
   content   String
   createdAt DateTime @default(now())
-  author    User     @relation(fields: [userId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id])
+  author    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   edited    Boolean  @default(false)
   userId    Int
   postId    Int
@@ -69,7 +69,7 @@ model Topic {
   name        String
   description String
   posts       Post[]
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId  Int
 
   @@map("topic")
@@ -91,26 +91,26 @@ model Chat {
   users       User[]
   messages    Message[]
 
-  @@map("chat")
   ChatToUser ChatToUser[]
+  @@map("chat")
 }
 
 model Message {
-  id         Int      @id @default(autoincrement())
-  content    String
-  createdAt  DateTime @default(now())
-  author     User     @relation(fields: [userId], references: [id])
-  chat       Chat     @relation(fields: [chatId], references: [id])
-  userId     Int
-  chatId     Int
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId    Int
+  chatId    Int
 
   @@map("message")
 }
 
 model ChatToUser {
-  chat   Chat @relation(fields: [chatId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId Int
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
 
   @@id([chatId, userId])

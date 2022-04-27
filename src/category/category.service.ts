@@ -1,40 +1,71 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create.category.dto';
 import { EditCategoryDto } from './dto/edit.category.dto';
-import { CreateTopicDto } from '../topic/dto/create.topic.dto';
+import prisma from '../client';
 
 @Injectable()
 export class CategoryService {
-  async getAllCategory() {
+  async getSomeCategory(userId: number, page: number) {
+    const take = 5;
+    const user = await this._getUser(userId);
+
+    const category = await prisma.category.findMany({
+      skip: (page - 1) * take,
+      take: take,
+    });
+
+    const pageCount = Math.ceil(category.length / take);
+    if (page < 1 || page > pageCount) {
+      throw new BadRequestException('Invalid page number');
+    }
+
     return {
       title: 'Категории - OpenForum',
       authorised: true,
-      username: 'username',
+      username: user.name,
+      userId: userId,
+      category: category,
+      pageCount: pageCount,
+      page: page,
     };
   }
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
-    throw new NotImplementedException();
+    await prisma.category.create({ data: createCategoryDto });
   }
 
-  async getCategory(categoryId: number) {
-    return {
-      categoryId: categoryId,
-      title: 'Категория ' + categoryId + ' - OpenForum',
-      authorised: true,
-      username: 'username',
-    };
+  async deleteCategory(categoryId: number) {
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (category == null) {
+      throw new NotFoundException('Category not found');
+    }
+    await prisma.category.delete({ where: { id: categoryId } });
   }
 
-  deleteCategory(categoryId: number) {
-    throw new NotImplementedException();
+  async editCategory(categoryId: number, editCategoryDto: EditCategoryDto) {
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (category == null) {
+      throw new NotFoundException('Category not found');
+    }
+    await prisma.category.update({
+      where: { id: categoryId },
+      data: editCategoryDto,
+    });
   }
 
-  editCategory(editCategoryDto: EditCategoryDto) {
-    throw new NotImplementedException();
-  }
-
-  createTopic(createTopicDto: CreateTopicDto) {
-    throw new NotImplementedException();
+  async _getUser(userId: number) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (user == null) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }

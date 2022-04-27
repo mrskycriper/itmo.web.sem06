@@ -2,12 +2,19 @@ extends ../template
 
 block content
     div(class="chat-navigation__container")
-        a(href="" class="chat-navigation__button") ←
-        a(href="" class="chat-navigation__button") →
+        if page === 1
+            a(href="" class="chat-navigation__button" style="visibility: hidden") ←
+        else
+            a(href="/chat?userId=" + userid + "&page=" + (page-1) class="chat-navigation__button") ←
+        p(class="chat-navigation__page-count") Страница #{page} из #{pageCount}
+        if page === pageCount
+            a(href="" class="chat-navigation__button" style="visibility: hidden") →
+        else
+            a(href="/chat?userId=" + userid + "&page=" + (page+1) class="chat-navigation__button") →
     div(class="chat__container")
-        each val in chats
+        each val in chatData
             div(class="chat__card")
-                img(src="https://ui-avatars.com/api/?name=" + val.name + "&background=random&rounded=false&size=64?bold=true" class="chat__avatar")
+                img(src="https://ui-avatars.com/api/?name=" + val.chat.name + "&background=random&rounded=false&size=64?bold=true" class="chat__avatar")
                 div
-                    a(href="/chat/"+ val.chatId class="chat__header" )= val.name
-                    p(class="chat__description")= val.description
+                    a(href="/chat/"+ val.chat.id class="chat__header" )= val.chat.name
+                    p(class="chat__description")= val.chat.description

@@ -1,10 +1,9 @@
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
+  ForbiddenException,
   Injectable,
-  NotImplementedException,
+  NotFoundException,
 } from '@nestjs/common';
-import { ChatEntity } from './entity/chat.entity';
 import { CreateChatDto } from './dto/create.chat.dto';
 import { EditChatDto } from './dto/edit.chat.dto';
 import { CreateMessageDto } from './dto/create.message.dto';
@@ -12,57 +11,95 @@ import prisma from '../client';
 
 @Injectable()
 export class ChatService {
-  async getAllChats(userId: number): Promise<object> {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+  // async getFirstChats(userId: number): Promise<object> {
+  //   const user = await this._getUser(userId);
+  //
+  //   // const user = await prisma.user.findUnique({
+  //   //   where: {
+  //   //     id: userId,
+  //   //   },
+  //   //   include: {
+  //   //     ChatToUser: {
+  //   //       take: 25,
+  //   //       skip: 0,
+  //   //       select: {
+  //   //         chat: true,
+  //   //       },
+  //   //     },
+  //   //   },
+  //   // });
+  //
+  //   const chats = await this.getSomeChats(userId, 1);
+  //
+  //   return {
+  //     title: 'Чаты - OpenForum',
+  //     authorised: true,
+  //     username: user.name,
+  //     userid: user.id,
+  //     chats: chats,
+  //     page: 1,
+  //   };
+  // }
 
-    const chatIds = await prisma.chatToUser.findMany({
-      where: { userId: userId },
-    });
-
-    const chatArray = [];
-    for (const i of chatIds) {
-      const chat = await prisma.chat.findUnique({ where: { id: i.chatId } });
-      chatArray.push({
-        chatId: chat.id,
-        name: chat.name,
-        description: chat.description,
-      });
+  async getSomeChats(userId: number, page: number): Promise<object> {
+    const user = await this._getUser(userId);
+    const take = 5;
+    const count = await this._getChatAmount(userId);
+    const pageCount = Math.ceil(count / take);
+    if (page < 1 || page > pageCount) {
+      throw new BadRequestException('Invalid page number');
     }
+    const chats = await this._getChats(userId, page, take);
 
     return {
       title: 'Чаты - OpenForum',
       authorised: true,
       username: user.name,
       userid: user.id,
-      chats: chatArray,
+      chatData: chats,
+      pageCount: pageCount,
+      page: page,
     };
   }
 
-  async getChat(userId: number, chatId: number): Promise<object> {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const chat = await prisma.chat.findUnique({ where: { id: chatId } });
-    if (chat == null) {
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
-    }
-
-    const userIds = await prisma.chatToUser.findMany({
-      where: { chatId: chatId },
+  async _getChats(userId: number, page: number, take: number): Promise<object> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        ChatToUser: {
+          take: take,
+          skip: (page - 1) * take,
+          select: {
+            chat: true,
+          },
+        },
+      },
     });
-    let access = false;
-    for (const i of userIds) {
-      if (i.userId == userId) {
-        access = true;
-      }
-    }
-    if (!access) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
-    }
+    return user.ChatToUser;
+  }
+
+  async _getChatAmount(userId: number) {
+    const count = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        ChatToUser: {
+          select: {
+            chat: true,
+          },
+        },
+      },
+    });
+    return count.ChatToUser.length;
+  }
+
+  async getChat(userId: number, chatId: number): Promise<object> {
+    const user = await this._getUser(userId);
+    const chat = await this._getChat(userId);
+    await this._checkChat(userId, chatId);
 
     const messages = await prisma.message.findMany({
       where: { chatId: chat.id },
@@ -72,39 +109,21 @@ export class ChatService {
     });
 
     return {
+      title: 'Чат ' + chat.name + ' - OpenForum',
       chatName: chat.name,
       chatId: chatId,
-      title: 'Чат ' + chat.name + ' - OpenForum',
       authorised: true,
       username: user.name,
       userid: user.id,
-      messageArray: messages,
+      messages: messages,
     };
   }
 
   async inviteUser(userId: number, chatId: number, inviteId: number) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    const invite = await prisma.user.findUnique({ where: { id: inviteId } });
-    if (user == null || invite == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const chat = await prisma.chat.findUnique({ where: { id: chatId } });
-    if (chat == null) {
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
-    }
-
-    const userIds = await prisma.chatToUser.findMany({
-      where: { chatId: chatId },
-    });
-    let access = false;
-    for (const i of userIds) {
-      if (i.userId == userId) {
-        access = true;
-      }
-    }
-    if (!access) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
-    }
+    await this._getUser(userId);
+    await this._getUser(inviteId);
+    await this._getChat(userId);
+    await this._checkChat(userId, chatId);
 
     await prisma.chatToUser.create({
       data: { userId: inviteId, chatId: chatId },
@@ -112,30 +131,11 @@ export class ChatService {
   }
 
   async removeUser(userId: number, chatId: number, unInviteId: number) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    const unInvite = await prisma.user.findUnique({
-      where: { id: unInviteId },
-    });
-    if (user == null || unInvite == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const chat = await prisma.chat.findUnique({ where: { id: chatId } });
-    if (chat == null) {
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
-    }
-
-    const userIds = await prisma.chatToUser.findMany({
-      where: { chatId: chatId },
-    });
-    let access = false;
-    for (const i of userIds) {
-      if (i.userId == userId) {
-        access = true;
-      }
-    }
-    if (!access) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
-    }
+    await this._getUser(userId);
+    await this._getUser(unInviteId);
+    await this._getChat(userId);
+    await this._checkChat(userId, chatId);
+    await this._checkChat(unInviteId, chatId);
 
     await prisma.chatToUser.delete({
       where: {
@@ -147,41 +147,20 @@ export class ChatService {
     });
   }
 
-  async createChat(creatorId: number, createChatDto: CreateChatDto) {
-    const user = await prisma.user.findUnique({ where: { id: creatorId } });
-    if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+  async createChat(userId: number, createChatDto: CreateChatDto) {
+    await this._getUser(userId);
     const chat = await prisma.chat.create({
       data: createChatDto,
     });
     await prisma.chatToUser.create({
-      data: { userId: creatorId, chatId: chat.id },
+      data: { userId: userId, chatId: chat.id },
     });
   }
 
   async deleteChat(userId: number, chatId: number) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const chat = await prisma.chat.findUnique({ where: { id: chatId } });
-    if (chat == null) {
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
-    }
-
-    const userIds = await prisma.chatToUser.findMany({
-      where: { chatId: chatId },
-    });
-    let access = false;
-    for (const i of userIds) {
-      if (i.userId == userId) {
-        access = true;
-      }
-    }
-    if (!access) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
-    }
+    await this._getUser(userId);
+    const chat = await this._getChat(userId);
+    await this._checkChat(userId, chatId);
 
     const deleteMessages = prisma.message.deleteMany({
       where: { chatId: chat.id },
@@ -195,14 +174,63 @@ export class ChatService {
   }
 
   async editChat(userId: number, chatId: number, editChatDto: EditChatDto) {
+    await this._getUser(userId);
+    await this._getChat(userId);
+    await this._checkChat(userId, chatId);
+
+    await prisma.chat.update({ where: { id: chatId }, data: editChatDto });
+  }
+
+  async postMessage(
+    userId: number,
+    chatId: number,
+    createMessageDto: CreateMessageDto,
+  ) {
+    await this._getUser(userId);
+    await this._getChat(userId);
+    await this._checkChat(userId, chatId);
+    await prisma.message.create({
+      data: {
+        createdAt: new Date(),
+        content: createMessageDto.content,
+        userId: userId,
+        chatId: chatId,
+      },
+    });
+  }
+
+  async deleteMessage(userId: number, messageId: number) {
+    const user = await this._getUser(userId);
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+    });
+    if (message == null) {
+      throw new NotFoundException('Message not found');
+    }
+    if (message.userId != user.id && !user.isModerator && !user.isAdmin) {
+      throw new ForbiddenException('Unauthorised operation');
+    }
+
+    await prisma.message.delete({ where: { id: messageId } });
+  }
+
+  async _getUser(userId: number) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found');
     }
+    return user;
+  }
+
+  async _getChat(chatId: number) {
     const chat = await prisma.chat.findUnique({ where: { id: chatId } });
     if (chat == null) {
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Chat not found');
     }
+    return chat;
+  }
+
+  async _checkChat(userId: number, chatId: number) {
     const userIds = await prisma.chatToUser.findMany({
       where: { chatId: chatId },
     });
@@ -213,60 +241,7 @@ export class ChatService {
       }
     }
     if (!access) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
+      throw new ForbiddenException('Unauthorised operation');
     }
-
-    await prisma.chat.update({ where: { id: chatId }, data: editChatDto });
-  }
-
-  async postMessage(userId: number, createMessageDto: CreateMessageDto) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const chat = await prisma.chat.findUnique({
-      where: { id: createMessageDto.chatId },
-    });
-    if (chat == null) {
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
-    }
-    const userIds = await prisma.chatToUser.findMany({
-      where: { chatId: createMessageDto.chatId },
-    });
-    let access = false;
-    for (const i of userIds) {
-      if (i.userId == userId) {
-        access = true;
-      }
-    }
-    if (!access) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
-    }
-    await prisma.message.create({
-      data: {
-        createdAt: new Date(),
-        content: createMessageDto.content,
-        userId: createMessageDto.userId,
-        chatId: createMessageDto.chatId,
-      },
-    });
-  }
-
-  async deleteMessage(userId: number, messageId: number) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    const message = await prisma.message.findUnique({
-      where: { id: messageId },
-    });
-    if (message == null) {
-      throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
-    }
-    if (message.userId != user.id && !user.isModerator && !user.isAdmin) {
-      throw new HttpException('Access forbidden.', HttpStatus.FORBIDDEN);
-    }
-
-    await prisma.message.delete({ where: { id: messageId } });
   }
 }
