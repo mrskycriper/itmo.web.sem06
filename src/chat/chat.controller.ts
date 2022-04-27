@@ -35,24 +35,47 @@ import { TimerInterceptor } from '../timer-interceptor.service';
 export class ChatController {
   constructor(private readonly chatsService: ChatService) {}
 
-  @ApiOperation({ summary: 'Render user chats' })
+  // @ApiOperation({ summary: 'Get first bunch of user chats' })
+  // @ApiQuery({
+  //   name: 'userId',
+  //   type: 'string',
+  //   description: 'Temporary way to insert userid',
+  // })
+  // @ApiOkResponse({ description: 'Chats found.' })
+  // @ApiBadRequestResponse({ description: 'Bad request.' })
+  // @ApiNotFoundResponse({ description: 'Chats not found.' })
+  // @Get('chat')
+  // @Render('chat-list')
+  // async getFirstChats(
+  //   @Query('userId', ParseIntPipe) userId: number,
+  // ): Promise<object> {
+  //   return this.chatsService.getSomeChats(userId, 1);
+  // }
+
+  @ApiOperation({ summary: 'Get a page of chats' })
   @ApiQuery({
     name: 'userId',
     type: 'string',
     description: 'Temporary way to insert userid',
   })
-  @ApiOkResponse({ description: 'Chats found.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiNotFoundResponse({ description: 'Chats not found.' })
+  @ApiQuery({
+    name: 'page',
+    type: 'string',
+    description: 'Page selector',
+  })
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  @ApiNotFoundResponse()
   @Get('chat')
   @Render('chat-list')
-  async getAllChats(
+  async getSomeChats(
     @Query('userId', ParseIntPipe) userId: number,
+    @Query('page', ParseIntPipe) page: number,
   ): Promise<object> {
-    return this.chatsService.getAllChats(userId);
+    return this.chatsService.getSomeChats(userId, page);
   }
 
-  @ApiOperation({ summary: 'Render single chat' })
+  @ApiOperation({ summary: 'Get single chat' })
   @ApiParam({
     name: 'chatId',
     type: 'string',
@@ -78,7 +101,7 @@ export class ChatController {
 
   @ApiOperation({ summary: 'Create new chat' })
   @ApiQuery({
-    name: 'creatorId',
+    name: 'userId',
     type: 'string',
     description: 'Chat creator id',
   })
@@ -87,10 +110,10 @@ export class ChatController {
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @Post('chat')
   async createChat(
-    @Query('creatorId', ParseIntPipe) creatorId: number,
+    @Query('userId', ParseIntPipe) userId: number,
     @Body() createChatDto: CreateChatDto,
   ) {
-    return this.chatsService.createChat(creatorId, createChatDto);
+    return this.chatsService.createChat(userId, createChatDto);
   }
 
   @ApiOperation({ summary: 'Delete chat' })
@@ -205,6 +228,11 @@ export class ChatController {
     type: 'string',
     description: 'Temporary way to insert userid',
   })
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
+  })
   @ApiBody({ type: CreateMessageDto })
   @ApiCreatedResponse({ description: 'Message created.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
@@ -213,9 +241,10 @@ export class ChatController {
   @Post('chat/:chatId')
   async postMessage(
     @Query('userId', ParseIntPipe) userId: number,
+    @Param('chatId', ParseIntPipe) chatId: number,
     @Body() createMessageDto: CreateMessageDto,
   ) {
-    return this.chatsService.postMessage(userId, createMessageDto);
+    return this.chatsService.postMessage(userId, chatId, createMessageDto);
   }
 
   @ApiOperation({ summary: 'Delete message' })

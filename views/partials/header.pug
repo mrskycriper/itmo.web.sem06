@@ -1,9 +1,9 @@
 div(class="nav-header")
     p(class="nav-header__logo") OpenForum
     nav(class="nav-header__container")
-        a(href="/" id="main-page" class="nav-header__button") Главная
-        a(href="/category" id="forum-page" class="nav-header__button") Тематические разделы
-        a(href="/chat" id="chat-page" class="nav-header__button") Чаты
+        a(href="/" class="nav-header__button") Главная
+        a(href="/category?page=1" class="nav-header__button") Тематические разделы
+        a(href="/chat?page=1" class="nav-header__button") Чаты
     div(class="nav-header__profile")
         if !authorised
             img(src="/images/profile.png" class="nav-header__profile-picture")

@@ -1,4 +1,20 @@
 extends ../../template
 
 block content
-    h1 Категории для обсуждений
+    h1 Категории
+    div(class="category-navigation__container")
+        if page === 1
+            a(href="" class="category-navigation__button" style="visibility: hidden") ←
+        else
+            a(href="/category?userId=" + userid + "&page=" + (page-1) class="category-navigation__button") ←
+        p(class="category-navigation__page-count") Страница #{page} из #{pageCount}
+        if page === pageCount
+            a(href="" class="category-navigation__button" style="visibility: hidden") →
+        else
+            a(href="/category?userId=" + userid + "&page=" + (page+1) class="category-navigation__button") →
+    div(class="category__container")
+      each val in category
+          div(class="category__card")
+              div
+                  a(href="/category/"+ val.id class="category__header" )= val.name
+                  p(class="category__description")= val.description

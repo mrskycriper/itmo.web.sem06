@@ -1,16 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
 export class EditCategoryDto {
-  @ApiProperty({ example: '3421', description: 'Unique category id' })
-  id: number;
-
+  @IsNotEmpty()
+  @MaxLength(32)
+  @MinLength(2)
   @ApiProperty({ example: 'Cooking', description: 'Category name' })
-  name: string;
+  readonly name: string;
 
+  @MaxLength(300)
   @ApiProperty({
     example: 'Everything about food',
     description: 'Category description',
     required: false,
   })
-  description: string | null;
+  readonly description: string | null;
 }

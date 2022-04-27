@@ -1,11 +1,18 @@
 extends ../template
 
 block content
-    h1 #{chatName}
-    div(class="chat__container")
-      each val in messageArray
-          div(class="chat__card")
-              img(src="https://ui-avatars.com/api/?name=" + val.userId + "&background=random&rounded=false&size=64?bold=true" class="chat__avatar")
-              div
-                  p(class="chat__header" )= val.userId
-                  p(class="chat__description")= val.content
+    div(class="chat__page")
+        h1 #{chatName}
+        div(class="message__container")
+          each val in messages
+              div(class="message__card")
+                  img(src="https://ui-avatars.com/api/?name=" + val.username + "&background=random&rounded=true&size=32" class="message__avatar")
+                  div
+                      div(class="message__header")
+                        p(class="message__name")= val.username
+                        p(class="message__date")= val.createdAt.toLocaleString('ru-RU', { hour: 'numeric', minute: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' })
+                      p(class="message__content")= val.content
+        div(class="text-input__card")
+            form(action="/chat/" + chatId method="post")
+                input(type="text" id="message" name="message")
+                input(type="submit" value="Отправить")
