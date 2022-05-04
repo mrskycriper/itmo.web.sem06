@@ -3,14 +3,18 @@ div(class="nav-header")
     nav(class="nav-header__container")
         a(href="/" class="nav-header__button") Главная
         a(href="/category?page=1" class="nav-header__button") Тематические разделы
-        a(href="/chat?page=1" class="nav-header__button") Чаты
+        if !authorised
+            a(href="/login" class="nav-header__button") Чаты
+        else
+            a(href="/chat?page=1" class="nav-header__button") Чаты
     div(class="nav-header__profile")
         if !authorised
             img(src="/images/profile.png" class="nav-header__profile-picture")
             a(href="/login" class="nav-header__profile-name") Войти
         else
-            img(src="https://ui-avatars.com/api/?name=" + username + "&background=random&rounded=true&size=48" class="nav-header__profile-picture")
-            a(href="/user/" + userid + "/profile" class="nav-header__profile-name") #{username}
+            img(src="https://ui-avatars.com/api/?name=" + username + "&rounded=true&size=48" class="nav-header__profile-picture")
+            a(href="/user/" + username class="nav-header__profile-name") #{username}
+        //TODO добавить выход из аккаунта
 
 
 

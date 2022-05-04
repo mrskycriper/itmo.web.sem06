@@ -9,7 +9,7 @@ import prisma from '../client';
 
 @Injectable()
 export class TopicService {
-  async getSomeTopics(userId: number, categoryId: number, page: number) {
+  async getSomeTopics(userId: string, categoryId: number, page: number) {
     const take = 5;
     const user = await this._getUser(userId);
     const category = await this._getCategory(categoryId);
@@ -27,9 +27,9 @@ export class TopicService {
 
     return {
       title: category.name + ' - OpenForum',
-      authorised: true,
-      username: user.name,
-      userId: userId,
+      //authorised: true,
+      //username: user.name,
+      //userId: userId,
       categoryName: category.name,
       categoryId: categoryId,
       topics: topics,
@@ -58,7 +58,7 @@ export class TopicService {
     await prisma.topic.update({ where: { id: topicId }, data: editTopicDto });
   }
 
-  async _getUser(userId: number) {
+  async _getUser(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user == null) {
       throw new NotFoundException('User not found');

@@ -1,23 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserEntity {
-  @ApiProperty({ example: '3421', description: 'Users unique id' })
-  id: number;
-
   @ApiProperty({
-    example: 'example@mail.domain',
-    description: 'Users email address',
+    example: 'c7a18e82-6741-4b29-bd58-26a84c5e2088',
+    description: 'Users unique id',
   })
-  email: string;
+  id: string;
 
   @ApiProperty({
-    example: '34256723476238756823476823',
-    description: 'Hashed password',
-  })
-  passwordHash: string;
-
-  @ApiProperty({
-    example: 'Zagos',
+    example: 'User123',
     description: 'Unique username',
   })
   name: string;

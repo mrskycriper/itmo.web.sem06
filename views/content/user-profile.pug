@@ -1,11 +1,42 @@
 extends ../template
 
+block additionalScripts
+    script(src='/js/profile.js')
+
 block content
-    h1 Профиль пользователя #{username} [id#{userId}]
-    section
-        article
-            h2 Роль
-            p #{role}
-        article
-            h2 О себе
-            p #{bio}
+    p(class='profile__header-text' id='name') #{userName}
+    button Удалить аккаунт
+    //TODO добавить удаление пользователя с подтверждением
+    div(class='profile__container')
+        div(class='profile__card')
+            if admin
+                div(class='profile__card-header')
+                    p(class='profile__card-name') Роль
+                    button(class='profile__card-edit' id='edit-role') изменить
+            else
+                p(class='profile__card-name') Роль
+            p(class='profile__card-content') #{role}
+            if admin
+                form(id='role-form' style='display: none' class='profile__card-from')
+                    div(class='profile__card-from-options')
+                        div(class='profile__card-from-group')
+                            label(for='isModerator' class='profile__card-from-label') Модератор
+                            input(id='isModerator' type='checkbox' class='profile__card-from-input--checkbox')
+                        div(class='profile__card-from-group')
+                            label(for='isAdmin' class='profile__card-from-label') Администратор
+                            input(id='isAdmin' type='checkbox' class='profile__card-from-input--checkbox')
+                    input(type='submit' value='Обновить' class='profile__card-from-submit')
+        div(class='profile__card')
+            if edit
+                div(class='profile__card-header')
+                    p(class='profile__card-name') О себе
+                    button(class='profile__card-edit' id='edit-bio') изменить
+            else
+                p(class='profile__card-name') О себе
+            p(class='profile__card-content') #{bio}
+            if edit
+                form(id='bio-form' style='display: none' class='profile__card-from')
+                    div(class='profile__card-from-options')
+                        label(for='bio' class='profile__card-from-label') О себе
+                        textarea(id='bio' type='text' class='profile__card-from-input--text')
+                    input(type='submit' value='Обновить' class='profile__card-from-submit')

@@ -56,11 +56,11 @@ export class TopicController {
   @Get('category/:categoryId/topics')
   @Render('topic-list')
   async getSomeTopics(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Query('page', ParseIntPipe) page: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
   ): Promise<object> {
-    return await this.topicService.getSomeTopics(+userId, categoryId, page);
+    return await this.topicService.getSomeTopics(userId, categoryId, page);
   }
 
   @ApiOperation({ summary: 'Create new topic' })

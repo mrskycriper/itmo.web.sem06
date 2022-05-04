@@ -1,7 +1,7 @@
 import { Get, Controller, Render, UseInterceptors } from '@nestjs/common';
 
 import { TimerInterceptor } from './timer-interceptor.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
 
 @ApiTags('app')
@@ -11,10 +11,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @ApiOperation({ summary: 'Render main page' })
-  @ApiResponse({
-    status: 200,
-    description: 'Main page rendered.',
-  })
+  @ApiOkResponse({ description: 'Ok.' })
   @Get('/')
   @Render('main')
   async getMain() {

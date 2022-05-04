@@ -35,23 +35,6 @@ import { TimerInterceptor } from '../timer-interceptor.service';
 export class ChatController {
   constructor(private readonly chatsService: ChatService) {}
 
-  // @ApiOperation({ summary: 'Get first bunch of user chats' })
-  // @ApiQuery({
-  //   name: 'userId',
-  //   type: 'string',
-  //   description: 'Temporary way to insert userid',
-  // })
-  // @ApiOkResponse({ description: 'Chats found.' })
-  // @ApiBadRequestResponse({ description: 'Bad request.' })
-  // @ApiNotFoundResponse({ description: 'Chats not found.' })
-  // @Get('chat')
-  // @Render('chat-list')
-  // async getFirstChats(
-  //   @Query('userId', ParseIntPipe) userId: number,
-  // ): Promise<object> {
-  //   return this.chatsService.getSomeChats(userId, 1);
-  // }
-
   @ApiOperation({ summary: 'Get a page of chats' })
   @ApiQuery({
     name: 'userId',
@@ -69,7 +52,7 @@ export class ChatController {
   @Get('chat')
   @Render('chat-list')
   async getSomeChats(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Query('page', ParseIntPipe) page: number,
   ): Promise<object> {
     return this.chatsService.getSomeChats(userId, page);
@@ -93,7 +76,7 @@ export class ChatController {
   @Get('chat/:chatId')
   @Render('chat')
   async getChat(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
   ): Promise<object> {
     return this.chatsService.getChat(userId, chatId);
@@ -110,7 +93,7 @@ export class ChatController {
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @Post('chat')
   async createChat(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Body() createChatDto: CreateChatDto,
   ) {
     return this.chatsService.createChat(userId, createChatDto);
@@ -133,7 +116,7 @@ export class ChatController {
   @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Delete('chat/:chatId')
   async deleteChat(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
   ) {
     return this.chatsService.deleteChat(userId, chatId);
@@ -161,9 +144,9 @@ export class ChatController {
   @ApiNotFoundResponse({ description: 'Chat or user not found.' })
   @Post('chat/:chatId/invite/:inviteId')
   async inviteUser(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
-    @Param('inviteId', ParseIntPipe) inviteId: number,
+    @Param('inviteId') inviteId: string,
   ) {
     return this.chatsService.inviteUser(userId, chatId, inviteId);
   }
@@ -190,9 +173,9 @@ export class ChatController {
   @ApiNotFoundResponse({ description: 'Chat or user not found.' })
   @Delete('chat/:chatId/users/:inviteId')
   async removeUser(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Param('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
-    @Param('unInviteId', ParseIntPipe) unInviteId: number,
+    @Param('unInviteId') unInviteId: string,
   ) {
     return this.chatsService.removeUser(userId, chatId, unInviteId);
   }
@@ -215,7 +198,7 @@ export class ChatController {
   @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Put('chat/:chatId')
   async editChat(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
     @Body() editChatDto: EditChatDto,
   ) {
@@ -240,7 +223,7 @@ export class ChatController {
   @ApiNotFoundResponse({ description: 'Chat not found.' })
   @Post('chat/:chatId')
   async postMessage(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
     @Body() createMessageDto: CreateMessageDto,
   ) {
@@ -264,7 +247,7 @@ export class ChatController {
   @ApiNotFoundResponse({ description: 'Chat or message not found.' })
   @Delete('messages/:messageId')
   async deleteMessage(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Param('messageId', ParseIntPipe) messageId: number,
   ) {
     return this.chatsService.deleteMessage(userId, messageId);

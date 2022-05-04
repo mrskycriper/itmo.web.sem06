@@ -11,37 +11,7 @@ import prisma from '../client';
 
 @Injectable()
 export class ChatService {
-  // async getFirstChats(userId: number): Promise<object> {
-  //   const user = await this._getUser(userId);
-  //
-  //   // const user = await prisma.user.findUnique({
-  //   //   where: {
-  //   //     id: userId,
-  //   //   },
-  //   //   include: {
-  //   //     ChatToUser: {
-  //   //       take: 25,
-  //   //       skip: 0,
-  //   //       select: {
-  //   //         chat: true,
-  //   //       },
-  //   //     },
-  //   //   },
-  //   // });
-  //
-  //   const chats = await this.getSomeChats(userId, 1);
-  //
-  //   return {
-  //     title: 'Чаты - OpenForum',
-  //     authorised: true,
-  //     username: user.name,
-  //     userid: user.id,
-  //     chats: chats,
-  //     page: 1,
-  //   };
-  // }
-
-  async getSomeChats(userId: number, page: number): Promise<object> {
+  async getSomeChats(userId: string, page: number): Promise<object> {
     const user = await this._getUser(userId);
     const take = 5;
     const count = await this._getChatAmount(userId);
@@ -62,7 +32,7 @@ export class ChatService {
     };
   }
 
-  async _getChats(userId: number, page: number, take: number): Promise<object> {
+  async _getChats(userId: string, page: number, take: number): Promise<object> {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -80,7 +50,7 @@ export class ChatService {
     return user.ChatToUser;
   }
 
-  async _getChatAmount(userId: number) {
+  async _getChatAmount(userId: string) {
     const count = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -96,9 +66,9 @@ export class ChatService {
     return count.ChatToUser.length;
   }
 
-  async getChat(userId: number, chatId: number): Promise<object> {
+  async getChat(userId: string, chatId: number): Promise<object> {
     const user = await this._getUser(userId);
-    const chat = await this._getChat(userId);
+    const chat = await this._getChat(chatId);
     await this._checkChat(userId, chatId);
 
     const messages = await prisma.message.findMany({
@@ -120,10 +90,10 @@ export class ChatService {
     };
   }
 
-  async inviteUser(userId: number, chatId: number, inviteId: number) {
+  async inviteUser(userId: string, chatId: number, inviteId: string) {
     await this._getUser(userId);
     await this._getUser(inviteId);
-    await this._getChat(userId);
+    await this._getChat(chatId);
     await this._checkChat(userId, chatId);
 
     await prisma.chatToUser.create({
@@ -131,10 +101,10 @@ export class ChatService {
     });
   }
 
-  async removeUser(userId: number, chatId: number, unInviteId: number) {
+  async removeUser(userId: string, chatId: number, unInviteId: string) {
     await this._getUser(userId);
     await this._getUser(unInviteId);
-    await this._getChat(userId);
+    await this._getChat(chatId);
     await this._checkChat(userId, chatId);
     await this._checkChat(unInviteId, chatId);
 
@@ -148,7 +118,7 @@ export class ChatService {
     });
   }
 
-  async createChat(userId: number, createChatDto: CreateChatDto) {
+  async createChat(userId: string, createChatDto: CreateChatDto) {
     await this._getUser(userId);
     const chat = await prisma.chat.create({
       data: createChatDto,
@@ -158,9 +128,9 @@ export class ChatService {
     });
   }
 
-  async deleteChat(userId: number, chatId: number) {
+  async deleteChat(userId: string, chatId: number) {
     await this._getUser(userId);
-    const chat = await this._getChat(userId);
+    const chat = await this._getChat(chatId);
     await this._checkChat(userId, chatId);
 
     const deleteMessages = prisma.message.deleteMany({
@@ -174,21 +144,21 @@ export class ChatService {
     await prisma.$transaction([deleteMessages, deleteChatToUser, deleteChat]);
   }
 
-  async editChat(userId: number, chatId: number, editChatDto: EditChatDto) {
+  async editChat(userId: string, chatId: number, editChatDto: EditChatDto) {
     await this._getUser(userId);
-    await this._getChat(userId);
+    await this._getChat(chatId);
     await this._checkChat(userId, chatId);
 
     await prisma.chat.update({ where: { id: chatId }, data: editChatDto });
   }
 
   async postMessage(
-    userId: number,
+    userId: string,
     chatId: number,
     createMessageDto: CreateMessageDto,
   ) {
     await this._getUser(userId);
-    await this._getChat(userId);
+    await this._getChat(chatId);
     await this._checkChat(userId, chatId);
     await prisma.message.create({
       data: {
@@ -200,7 +170,7 @@ export class ChatService {
     });
   }
 
-  async deleteMessage(userId: number, messageId: number) {
+  async deleteMessage(userId: string, messageId: number) {
     const user = await this._getUser(userId);
     const message = await prisma.message.findUnique({
       where: { id: messageId },
@@ -215,7 +185,7 @@ export class ChatService {
     await prisma.message.delete({ where: { id: messageId } });
   }
 
-  async _getUser(userId: number) {
+  async _getUser(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user == null) {
       throw new NotFoundException('User not found');
@@ -231,7 +201,7 @@ export class ChatService {
     return chat;
   }
 
-  async _checkChat(userId: number, chatId: number) {
+  async _checkChat(userId: string, chatId: number) {
     const userIds = await prisma.chatToUser.findMany({
       where: { chatId: chatId },
     });

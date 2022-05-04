@@ -12,5 +12,5 @@ export class ChatEntity {
     description: 'Chat description',
     required: false,
   })
-  description: string | null;
+  description: string;
 }

@@ -50,10 +50,10 @@ export class CategoryController {
   @Get('category')
   @Render('category-list')
   async getSomeCategory(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Query('page', ParseIntPipe) page: number,
   ): Promise<object> {
-    return await this.categoryService.getSomeCategory(+userId, page);
+    return await this.categoryService.getSomeCategory(userId, page);
   }
 
   @ApiOperation({ summary: 'Create new category' })

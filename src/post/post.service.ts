@@ -3,7 +3,6 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  NotImplementedException,
 } from '@nestjs/common';
 import { EditPostDto } from './dto/edit.post.dto';
 import { CreateCommentDto } from './dto/create.comment.dto';
@@ -14,7 +13,7 @@ import prisma from '../client';
 @Injectable()
 export class PostService {
   async getTopic(
-    userId: number,
+    userId: string,
     categoryId: number,
     topicId: number,
     page: number,
@@ -37,9 +36,9 @@ export class PostService {
 
     return {
       title: topic.name + ' - OpenForum',
-      authorised: true,
-      username: user.name,
-      userId: userId,
+      //authorised: true,
+      //username: user.name,
+      //userId: userId,
       topicName: topic.name,
       topicId: topicId,
       posts: posts,
@@ -80,7 +79,7 @@ export class PostService {
   }
 
   async getPost(
-    userId: number,
+    userId: string,
     categoryId: number,
     topicId: number,
     postId: number,
@@ -103,16 +102,16 @@ export class PostService {
       postTitle: post.title,
       postContent: post.content,
       createdAt: post.createdAt,
-      authorised: true,
-      username: user.name,
-      userid: user.id,
+      //authorised: true,
+      //username: user.name,
+      //userid: user.id,
       comments: comments,
       postId: postId,
     };
   }
 
   async createComment(
-    userId: number,
+    userId: string,
     categoryId: number,
     topicId: number,
     postId: number,
@@ -129,7 +128,7 @@ export class PostService {
   }
 
   async deleteComment(
-    userId: number,
+    userId: string,
     categoryId: number,
     topicId: number,
     postId: number,
@@ -147,7 +146,7 @@ export class PostService {
   }
 
   async editComment(
-    userId: number,
+    userId: string,
     categoryId: number,
     topicId: number,
     postId: number,
@@ -168,7 +167,7 @@ export class PostService {
     });
   }
 
-  async _getUser(userId: number) {
+  async _getUser(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user == null) {
       throw new NotFoundException('User not found');

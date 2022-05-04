@@ -1,16 +1,12 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import { UserEntity } from './user/entity/user.entity';
 import { CreateUserDto } from './user/dto/create.user.dto';
-import { UpdateUserDto } from './user/dto/update.user.dto';
-import { LoginDto } from './user/dto/login.dto';
 import { ProfileEntity } from './user/entity/profile.entity';
 import { ChatEntity } from './chat/entity/chat.entity';
 import { MessageEntity } from './chat/entity/message.entity';
@@ -30,11 +26,13 @@ import { EditPostDto } from './post/dto/edit.post.dto';
 import { EditCommentDto } from './post/dto/edit.comment.dto';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './all.exception.filter';
+import supertokens from 'supertokens-node';
+import { SupertokensExceptionFilter } from './auth/auth.filter';
+import { AuthInterceptor } from './auth/auth.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  const configService = app.get(ConfigService);
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir([
     join(__dirname, '..', 'views'),
@@ -43,13 +41,13 @@ async function bootstrap() {
     join(__dirname, '..', 'views', 'content', 'posts'),
   ]);
   app.setViewEngine('pug');
-  app.use(cookieParser());
+  // app.use(cookieParser());
   app.use(express.urlencoded({ extended: true }));
 
   const config = new DocumentBuilder()
-    .setTitle('Prisma Examples')
-    .setDescription('The prisma-examples REST API definition')
-    .setVersion('1.0')
+    .setTitle('OpenForum api')
+    .setDescription('The OpenForum REST API definition')
+    .setVersion('6.0.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
@@ -64,8 +62,6 @@ async function bootstrap() {
       MessageEntity,
 
       CreateUserDto,
-      LoginDto,
-      UpdateUserDto,
       UpdateProfileDto,
 
       CreateChatDto,
@@ -88,10 +84,18 @@ async function bootstrap() {
     },
   });
 
+  app.enableCors({
+    origin: [process.env.WEBSITE_DOMAIN],
+    allowedHeaders: ['content-type', ...supertokens.getAllCORSHeaders()],
+    credentials: true,
+  });
+  app.useGlobalFilters(new SupertokensExceptionFilter());
+
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalInterceptors(new AuthInterceptor());
 
-  await app.listen(configService.get<number>('PORT'));
+  await app.listen(process.env.PORT);
 }
 
 bootstrap();

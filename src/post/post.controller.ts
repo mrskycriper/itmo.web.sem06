@@ -59,12 +59,12 @@ export class PostController {
   @Get('category/:categoryId/topic/:topicId/posts')
   @Render('post-list')
   async getTopic(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Query('page', ParseIntPipe) page: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('topicId', ParseIntPipe) topicId: number,
   ) {
-    return await this.postService.getTopic(+userId, categoryId, topicId, page);
+    return await this.postService.getTopic(userId, categoryId, topicId, page);
   }
 
   @ApiOperation({ summary: 'Create new post' })
@@ -160,12 +160,12 @@ export class PostController {
   @Get('category/:categoryId/topic/:topicId/posts/:postId')
   @Render('post')
   async getPost(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('topicId', ParseIntPipe) topicId: number,
     @Param('postId', ParseIntPipe) postId: number,
   ): Promise<object> {
-    return await this.postService.getPost(+userId, categoryId, topicId, postId);
+    return await this.postService.getPost(userId, categoryId, topicId, postId);
   }
 
   @ApiOperation({ summary: 'Create new comment' })
@@ -188,7 +188,7 @@ export class PostController {
   @ApiNotFoundResponse()
   @Post('category/:categoryId/topic/:topicId/posts/:postId/comments')
   async createComment(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('topicId', ParseIntPipe) topicId: number,
     @Param('postId', ParseIntPipe) postId: number,
@@ -229,7 +229,7 @@ export class PostController {
     'category/:categoryId/topic/:topicId/posts/:postId/comments/:commentId',
   )
   async deleteComment(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('topicId', ParseIntPipe) topicId: number,
     @Param('postId', ParseIntPipe) postId: number,
@@ -269,7 +269,7 @@ export class PostController {
   @ApiNotFoundResponse()
   @Put('category/:categoryId/topic/:topicId/posts/:postId/comments/:commentId')
   async editComment(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Param('topicId', ParseIntPipe) topicId: number,
     @Param('postId', ParseIntPipe) postId: number,

@@ -1,25 +1,29 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  NotImplementedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create.user.dto';
-import { UpdateUserDto } from './dto/update.user.dto';
-import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update.profile.dto';
+import { deleteUser } from 'supertokens-node';
 import prisma from '../client';
+import { EditRoleDto } from './dto/edit.role.dto';
 
 @Injectable()
 export class UserService {
-  async createUser(createUserDto: CreateUserDto) {
-    const emailTaken = await prisma.user.findUnique({
-      where: { email: createUserDto.email },
+  async isUsernameTaken(username: string): Promise<object> {
+    const nameTaken = await prisma.user.findUnique({
+      where: { name: username },
     });
-    if (emailTaken) {
-      throw new BadRequestException('Email already in use');
+    let isNameTaken = true;
+    if (nameTaken == null) {
+      isNameTaken = false;
     }
+    return { isNameTaken: isNameTaken };
+  }
 
+  async createUser(createUserDto: CreateUserDto) {
     const nameTaken = await prisma.user.findUnique({
       where: { name: createUserDto.name },
     });
@@ -33,13 +37,14 @@ export class UserService {
     });
   }
 
-  async getUserProfile(userId: number): Promise<object> {
-    const user = await this._getUser(userId);
-
+  async getUserProfile(visitorId: string, userName: string): Promise<object> {
+    const user = await prisma.user.findUnique({ where: { name: userName } });
+    if (user == null) {
+      throw new NotFoundException('User not found');
+    }
     const profile = await prisma.profile.findUnique({
-      where: { userId: userId },
+      where: { userId: user.id },
     });
-
     let role = 'Пользователь';
     if (user.isModerator && !user.isAdmin) {
       role = 'Модератор';
@@ -48,65 +53,86 @@ export class UserService {
       role = 'Администратор';
     }
 
+    let admin = false;
+    let edit = false;
+    if (visitorId != null) {
+      const visitor = await prisma.user.findUnique({
+        where: { id: visitorId },
+      });
+      if (visitor.isAdmin) {
+        admin = true;
+        edit = true;
+      }
+      if (user.id == visitor.id) {
+        edit = true;
+      }
+    }
+
     return {
-      userId: userId,
       title: user.name + ' - OpenForum',
-      authorised: true,
-      username: user.name,
+      userName: user.name,
       bio: profile.bio,
       role: role,
+      admin: admin,
+      edit: edit,
     };
   }
 
-  async updateUser(userId: number, updateUserDto: UpdateUserDto) {
-    await this._getUser(userId);
+  async updateRole(userId: string, userName: string, editRoleDto: EditRoleDto) {
+    const user = await prisma.user.findUnique({ where: { name: userName } });
+    if (user == null) {
+      throw new NotFoundException('User not found');
+    }
+
+    const admin = await prisma.user.findUnique({ where: { id: userId } });
+    if (!admin.isAdmin) {
+      throw new ForbiddenException('Forbidden operation');
+    }
 
     await prisma.user.update({
-      where: { id: userId },
-      data: updateUserDto,
+      where: { name: userName },
+      data: editRoleDto,
     });
   }
 
-  async updateRole(userId: number, isModerator: boolean, isAdmin: boolean) {
-    await this._getUser(userId);
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isModerator: isModerator, isAdmin: isAdmin },
-    });
-  }
-
-  async updateProfile(userId: number, updateProfileDto: UpdateProfileDto) {
-    await this._getUser(userId);
+  async updateProfile(
+    userId: string,
+    userName: string,
+    updateProfileDto: UpdateProfileDto,
+  ) {
+    const user = await prisma.user.findUnique({ where: { name: userName } });
+    if (user == null) {
+      throw new NotFoundException('User not found');
+    }
+    const admin = await prisma.user.findUnique({ where: { id: userId } });
+    if (!admin.isAdmin && user.id != userId) {
+      throw new ForbiddenException('Forbidden operation');
+    }
 
     await prisma.profile.update({
-      where: { userId: userId },
+      where: { userId: user.id },
       data: updateProfileDto,
     });
   }
 
-  async deleteUser(userId: number) {
-    await this._getUser(userId);
-    await prisma.user.delete({ where: { id: userId } });
+  async deleteUser(userId: string, userName: string) {
+    const user = await prisma.user.findUnique({ where: { name: userName } });
+    if (user == null) {
+      throw new NotFoundException('User not found');
+    }
+    const admin = await prisma.user.findUnique({ where: { id: userId } });
+    if (!admin.isAdmin || user.id != userId) {
+      throw new NotFoundException('Forbidden operation');
+    }
+    await deleteUser(user.id);
+    await prisma.user.delete({ where: { id: user.id } });
   }
 
   async getLogin() {
     return { title: 'Авторизация - OpenForum' };
   }
 
-  async login(loginDto: LoginDto) {
-    throw new NotImplementedException();
-  }
-
-  async logout() {
-    throw new NotImplementedException();
-  }
-
-  async _getUser(userId: number) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
+  async getRegister() {
+    return { title: 'Регистрация - OpenForum' };
   }
 }

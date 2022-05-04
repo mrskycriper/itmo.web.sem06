@@ -9,7 +9,7 @@ import prisma from '../client';
 
 @Injectable()
 export class CategoryService {
-  async getSomeCategory(userId: number, page: number) {
+  async getSomeCategory(userId: string, page: number) {
     const take = 5;
     const user = await this._getUser(userId);
 
@@ -61,7 +61,7 @@ export class CategoryService {
     });
   }
 
-  async _getUser(userId: number) {
+  async _getUser(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user == null) {
       throw new NotFoundException('User not found');
