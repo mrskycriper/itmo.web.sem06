@@ -3,7 +3,7 @@ class Api {
 
   constructor() {
     this.#api = axios.create({
-      baseURL: 'http://localhost:4000',
+      baseURL: window.location.origin,
       withCredentials: true,
     });
     supertokens.addAxiosInterceptors(this.#api);

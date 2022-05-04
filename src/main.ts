@@ -41,7 +41,6 @@ async function bootstrap() {
     join(__dirname, '..', 'views', 'content', 'posts'),
   ]);
   app.setViewEngine('pug');
-  // app.use(cookieParser());
   app.use(express.urlencoded({ extended: true }));
 
   const config = new DocumentBuilder()
