@@ -6,7 +6,7 @@ export class EditChatDto {
   @MaxLength(32)
   @MinLength(2)
   @ApiProperty({ example: 'Chat', description: 'Chat name' })
-  name: string;
+  readonly name: string;
 
   @MaxLength(300)
   @ApiProperty({
@@ -14,5 +14,5 @@ export class EditChatDto {
     description: 'Chat description',
     required: false,
   })
-  description: string;
+  readonly description: string;
 }

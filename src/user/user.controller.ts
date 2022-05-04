@@ -5,20 +5,22 @@ import {
   Get,
   Param,
   ParseBoolPipe,
-  ParseIntPipe,
   Post,
   Put,
   Query,
   Render,
+  Req,
+  Request,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create.user.dto';
-import { UpdateUserDto } from './dto/update.user.dto';
-import { LoginDto } from './dto/login.dto';
 import {
   ApiBadRequestResponse,
+  ApiBasicAuth,
   ApiBody,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -26,150 +28,150 @@ import {
   ApiOperation,
   ApiParam,
   ApiQuery,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
 import { UpdateProfileDto } from './dto/update.profile.dto';
 import { TimerInterceptor } from '../timer-interceptor.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { SessionDecorator } from '../auth/session.decorator';
+import { SessionContainer } from 'supertokens-node/recipe/session';
+import { CheckUsernameDto } from './dto/check.username.dto';
+import { EditRoleDto } from './dto/edit.role.dto';
 
 @ApiTags('user')
 @UseInterceptors(TimerInterceptor)
+@ApiCookieAuth()
 @Controller()
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
+  @ApiOperation({ summary: 'Check if username is already taken' })
+  @ApiBody({ type: CheckUsernameDto })
+  @ApiOkResponse({ description: 'Ok.' })
+  @Post('checkname')
+  async isUsernameTaken(
+    @Body() checkUsernameDto: CheckUsernameDto,
+  ): Promise<object> {
+    return await this.usersService.isUsernameTaken(checkUsernameDto.name);
+  }
+
   @ApiOperation({ summary: 'Create new user' })
   @ApiBody({ type: CreateUserDto })
-  @ApiCreatedResponse({ description: 'User created.' })
+  @ApiCreatedResponse({ description: 'Created.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @Post('user')
   async createUser(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.createUser(createUserDto);
   }
 
-  @ApiOperation({ summary: 'Render users profile' })
+  @ApiOperation({ summary: 'Get user profile' })
   @ApiParam({
-    name: 'userId',
+    name: 'userName',
     type: 'string',
-    description: 'Unique user identifier',
+    description: 'Unique user name',
   })
-  @ApiOkResponse({ description: 'User found.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiOkResponse({ description: 'Ok.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
-  @Get('user/:userId/profile')
+  @Get('user/:userName')
   @Render('user-profile')
   async getUserProfile(
-    @Param('userId', ParseIntPipe) userId: number,
+    @SessionDecorator() session: SessionContainer,
+    @Param('userName') userName: string,
   ): Promise<object> {
-    return await this.usersService.getUserProfile(+userId);
+    let userId = null;
+    try {
+      userId = session.getUserId();
+    } catch (err) {}
+    return await this.usersService.getUserProfile(userId, userName);
   }
 
-  @ApiOperation({ summary: 'Update user data' })
-  @ApiParam({
-    name: 'userId',
-    type: 'string',
-    description: 'Unique user identifier',
-  })
-  @ApiBody({ type: UpdateUserDto })
-  @ApiOkResponse({ description: 'User data updated successfully.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access denied.' })
-  @ApiNotFoundResponse({ description: 'User not found.' })
-  @Put('user/:userId')
-  async updateUser(
-    @Param('userId', ParseIntPipe) userId: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return await this.usersService.updateUser(+userId, updateUserDto);
-  }
-
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Change user role flags' })
   @ApiParam({
-    name: 'userId',
+    name: 'userName',
     type: 'string',
-    description: 'Unique user identifier',
+    description: 'Unique user name',
   })
-  @ApiQuery({
-    name: 'isModerator',
-    type: 'boolean',
-    description: 'Moderator role flag',
-  })
-  @ApiQuery({
-    name: 'isAdmin',
-    type: 'boolean',
-    description: 'Admin role flag',
-  })
-  @ApiOkResponse({ description: 'User role updated.' })
+  @ApiBody({ type: EditRoleDto })
+  @ApiOkResponse({ description: 'Ok.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiForbiddenResponse({ description: 'Access denied.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
-  @Put('user/:userId/role')
+  @Put('user/:userName/role')
   async updateRole(
-    @Param('userId', ParseIntPipe) userId: number,
-    @Query('isModerator', ParseBoolPipe) isModerator: boolean,
-    @Query('isAdmin', ParseBoolPipe) isAdmin: boolean,
+    @SessionDecorator() session: SessionContainer,
+    @Param('userName') userName: string,
+    @Body() editRoleDto: EditRoleDto,
   ) {
-    return await this.usersService.updateRole(userId, isModerator, isAdmin);
+    let userId = null;
+    try {
+      userId = session.getUserId();
+    } catch (err) {}
+    return await this.usersService.updateRole(userId, userName, editRoleDto);
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update users profile data' })
   @ApiParam({
-    name: 'userId',
+    name: 'userName',
     type: 'string',
-    description: 'Unique user identifier',
+    description: 'Unique user name',
   })
   @ApiBody({ type: UpdateProfileDto })
-  @ApiOkResponse({ description: 'Profile updated.' })
+  @ApiOkResponse({ description: 'Ok.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiForbiddenResponse({ description: 'Access denied.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
-  @Put('user/:userId/profile')
+  @Put('user/:userName/profile')
   async updateProfile(
-    @Param('userId', ParseIntPipe) userId: number,
+    @SessionDecorator() session: SessionContainer,
+    @Param('userName') userName: string,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    return await this.usersService.updateProfile(+userId, updateProfileDto);
+    let userId = null;
+    try {
+      userId = session.getUserId();
+    } catch (err) {}
+    return await this.usersService.updateProfile(
+      userId,
+      userName,
+      updateProfileDto,
+    );
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete user' })
   @ApiParam({
-    name: 'userId',
+    name: 'userName',
     type: 'string',
-    description: 'Unique user identifier',
+    description: 'Unique user name',
   })
-  @ApiOkResponse({ description: 'User deleted.' })
+  @ApiOkResponse({ description: 'Ok.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiForbiddenResponse({ description: 'Forbidden operation.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
-  @Delete('user/:userId')
-  async deleteUser(@Param('userId', ParseIntPipe) userId: number) {
-    return await this.usersService.deleteUser(+userId);
+  @Delete('user/:userName')
+  async deleteUser(
+    @SessionDecorator() session: SessionContainer,
+    @Param('userName') userName: string,
+  ) {
+    return await this.usersService.deleteUser(session.getUserId(), userName);
   }
 
-  @ApiOperation({ summary: 'Render login page' })
-  @ApiOkResponse({ description: 'Login page rendered.' })
-  @Get('/login')
+  @ApiOperation({ summary: 'Get login page' })
+  @ApiOkResponse({ description: 'Ok.' })
+  @Get('login')
   @Render('login')
   async renderLogin() {
     return await this.usersService.getLogin();
   }
 
-  @ApiOperation({ summary: 'Log in as user' })
-  @ApiBody({ type: LoginDto })
-  @ApiOkResponse({ description: 'Logged in.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiNotFoundResponse({ description: 'User not found.' })
-  @Post('/login')
-  async login(@Body() loginDto: LoginDto) {
-    return await this.usersService.login(loginDto);
-  }
-
-  @ApiOperation({ summary: 'Log out of user' })
-  @ApiOkResponse({ description: 'Logged out.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @Post('/logout')
-  async logout() {
-    return await this.usersService.logout();
+  @ApiOperation({ summary: 'Get register page' })
+  @ApiOkResponse({ description: 'Ok.' })
+  @Get('register')
+  @Render('register')
+  async login() {
+    return await this.usersService.getRegister();
   }
 }

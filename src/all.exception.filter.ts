@@ -16,7 +16,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const response = host.switchToHttp().getResponse();
     response.status(httpStatus);
+    console.log(exception);
 
-    return response.render('error', exception);
+    if (exception instanceof HttpException) {
+      return response.render('error', exception);
+    } else {
+      return response.render('error', {
+        response: {
+          statusCode: '500',
+          error: 'Internal server error',
+          message: 'Unknown error',
+        },
+      });
+    }
   }
 }

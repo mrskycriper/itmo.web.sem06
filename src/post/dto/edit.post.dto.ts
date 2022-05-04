@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsBoolean,
-  IsNumberString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsBoolean, MaxLength, MinLength } from 'class-validator';
 
 export class EditPostDto {
   @MaxLength(64)
@@ -25,15 +20,4 @@ export class EditPostDto {
     description: 'Marks if post is publicly visible',
   })
   readonly published: boolean;
-
-  @IsNumberString()
-  @ApiProperty({ example: '3421', description: 'Author id' })
-  readonly userId: number;
-
-  @IsNumberString()
-  @ApiProperty({
-    example: '3421',
-    description: 'Unique topic id this post is attached to',
-  })
-  readonly topicId: number;
 }

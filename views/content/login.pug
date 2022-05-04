@@ -1,18 +1,23 @@
 extends ../template
 
+block additionalScripts
+    script(src='/js/login.js')
+
 block body
     main
         div(class='login')
             div(class='login__container')
                 p(class='login__logo') OpenForum
-                form(class='login__form')
+                form(class='login__form' id='login-form')
                     div(class='login__form-group')
-                        label(class='login__form-input-label' for='username') Логин или E-mail
-                        input(class='login__form-input' id='username' type=text)
+                        label(class='login__form-input-label' for='email') E-mail
+                        input(class='login__form-input' id='email' type='email' required=true)
                     div(class='login__form-group')
                         label(class='login__form-input-label' for='password') Пароль
-                        input(class='login__form-input' id='password' type=text)
-                    button(class='login__form-button') Войти
+                        input(class='login__form-input' id='password' type="password" pattern="[0-9a-zA-Z]+" required=true minlength=8)
+                    a(class='login__form-link' href="/register") Регистрация
+                    input(class='login__form-button' id='login-btn' type='submit' value='Войти')
+                a(class='login__link' href="/") Вернуться на главную
 
 
 

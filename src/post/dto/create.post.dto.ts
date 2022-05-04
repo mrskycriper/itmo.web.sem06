@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsNotEmpty,
   IsNumberString,
   MaxLength,
   MinLength,
@@ -26,9 +27,12 @@ export class CreatePostDto {
   })
   readonly published: boolean;
 
-  @IsNumberString()
-  @ApiProperty({ example: '3421', description: 'Author id' })
-  readonly userId: number;
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'c7a18e82-6741-4b29-bd58-26a84c5e2088',
+    description: 'Author id',
+  })
+  readonly userId: string;
 
   @IsNumberString()
   @ApiProperty({

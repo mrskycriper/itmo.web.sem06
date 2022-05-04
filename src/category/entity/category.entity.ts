@@ -12,5 +12,5 @@ export class CategoryEntity {
     description: 'Category description',
     required: false,
   })
-  description: string | null;
+  description: string;
 }
