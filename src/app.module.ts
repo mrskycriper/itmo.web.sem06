@@ -15,11 +15,9 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     ConfigModule.forRoot(),
     AuthModule.forRoot({
-      // try.supertokens.com is for demo purposes. Replace this with the address of your core instance (sign up on supertokens.com), or self host a core.
       connectionURI: process.env.CONNECTION_URI,
       apiKey: process.env.API_KEY,
       appInfo: {
-        // Learn more about this on https://supertokens.com/docs/emailpassword/appinfo
         appName: 'OpenForum',
         apiDomain: process.env.API_DOMAIN,
         websiteDomain: process.env.WEBSITE_DOMAIN,

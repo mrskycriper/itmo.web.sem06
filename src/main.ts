@@ -13,7 +13,7 @@ import { MessageEntity } from './chat/entity/message.entity';
 import { CreateMessageDto } from './chat/dto/create.message.dto';
 import { CreateChatDto } from './chat/dto/create.chat.dto';
 import { EditChatDto } from './chat/dto/edit.chat.dto';
-import { UpdateProfileDto } from './user/dto/update.profile.dto';
+import { UpdateBioDto } from './user/dto/update.bio.dto';
 import { TopicEntity } from './topic/entity/topic.entity';
 import { PostEntity } from './post/entity/post.entity';
 import { CreateCategoryDto } from './category/dto/create.category.dto';
@@ -46,7 +46,8 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('OpenForum api')
     .setDescription('The OpenForum REST API definition')
-    .setVersion('6.0.0')
+    .setVersion('6.2.0')
+    .addCookieAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
@@ -61,7 +62,7 @@ async function bootstrap() {
       MessageEntity,
 
       CreateUserDto,
-      UpdateProfileDto,
+      UpdateBioDto,
 
       CreateChatDto,
       EditChatDto,

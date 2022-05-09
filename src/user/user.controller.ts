@@ -4,21 +4,15 @@ import {
   Delete,
   Get,
   Param,
-  ParseBoolPipe,
   Post,
   Put,
-  Query,
   Render,
-  Req,
-  Request,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import {
   ApiBadRequestResponse,
-  ApiBasicAuth,
   ApiBody,
   ApiCookieAuth,
   ApiCreatedResponse,
@@ -27,20 +21,20 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { UpdateProfileDto } from './dto/update.profile.dto';
-import { TimerInterceptor } from '../timer-interceptor.service';
-import { AuthGuard } from '../auth/auth.guard';
+import { UpdateBioDto } from './dto/update.bio.dto';
 import { SessionDecorator } from '../auth/session.decorator';
 import { SessionContainer } from 'supertokens-node/recipe/session';
 import { CheckUsernameDto } from './dto/check.username.dto';
 import { EditRoleDto } from './dto/edit.role.dto';
+import { DeleteUserGuard } from '../auth/guards/delete.user.guard';
+import { UpdateBioGuard } from '../auth/guards/update.profile.guard';
+import { UpdateRoleGuard } from '../auth/guards/update.role.guard';
 
 @ApiTags('user')
-@UseInterceptors(TimerInterceptor)
 @ApiCookieAuth()
 @Controller()
 export class UserController {
@@ -49,7 +43,7 @@ export class UserController {
   @ApiOperation({ summary: 'Check if username is already taken' })
   @ApiBody({ type: CheckUsernameDto })
   @ApiOkResponse({ description: 'Ok.' })
-  @Post('checkname')
+  @Post('checkName')
   async isUsernameTaken(
     @Body() checkUsernameDto: CheckUsernameDto,
   ): Promise<object> {
@@ -86,7 +80,6 @@ export class UserController {
     return await this.usersService.getUserProfile(userId, userName);
   }
 
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Change user role flags' })
   @ApiParam({
     name: 'userName',
@@ -96,51 +89,39 @@ export class UserController {
   @ApiBody({ type: EditRoleDto })
   @ApiOkResponse({ description: 'Ok.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access denied.' })
+  @ApiForbiddenResponse({ description: 'Forbidden operation.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
+  @UseGuards(UpdateRoleGuard)
   @Put('user/:userName/role')
   async updateRole(
-    @SessionDecorator() session: SessionContainer,
     @Param('userName') userName: string,
     @Body() editRoleDto: EditRoleDto,
   ) {
-    let userId = null;
-    try {
-      userId = session.getUserId();
-    } catch (err) {}
-    return await this.usersService.updateRole(userId, userName, editRoleDto);
+    return await this.usersService.updateRole(userName, editRoleDto);
   }
 
-  @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Update users profile data' })
+  @ApiOperation({ summary: 'Update user biography' })
   @ApiParam({
     name: 'userName',
     type: 'string',
     description: 'Unique user name',
   })
-  @ApiBody({ type: UpdateProfileDto })
+  @ApiBody({ type: UpdateBioDto })
   @ApiOkResponse({ description: 'Ok.' })
   @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access denied.' })
+  @ApiForbiddenResponse({ description: 'Forbidden operation.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
-  @Put('user/:userName/profile')
-  async updateProfile(
-    @SessionDecorator() session: SessionContainer,
+  @UseGuards(UpdateBioGuard)
+  @Put('user/:userName/bio')
+  async updateBio(
     @Param('userName') userName: string,
-    @Body() updateProfileDto: UpdateProfileDto,
+    @Body() updateBioDto: UpdateBioDto,
   ) {
-    let userId = null;
-    try {
-      userId = session.getUserId();
-    } catch (err) {}
-    return await this.usersService.updateProfile(
-      userId,
-      userName,
-      updateProfileDto,
-    );
+    return await this.usersService.updateBio(userName, updateBioDto);
   }
 
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete user' })
   @ApiParam({
     name: 'userName',
@@ -148,15 +129,13 @@ export class UserController {
     description: 'Unique user name',
   })
   @ApiOkResponse({ description: 'Ok.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
   @ApiForbiddenResponse({ description: 'Forbidden operation.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
+  @UseGuards(DeleteUserGuard)
   @Delete('user/:userName')
-  async deleteUser(
-    @SessionDecorator() session: SessionContainer,
-    @Param('userName') userName: string,
-  ) {
-    return await this.usersService.deleteUser(session.getUserId(), userName);
+  async deleteUser(@Param('userName') userName: string) {
+    return await this.usersService.deleteUser(userName);
   }
 
   @ApiOperation({ summary: 'Get login page' })

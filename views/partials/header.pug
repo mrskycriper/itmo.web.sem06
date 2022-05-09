@@ -13,8 +13,9 @@ div(class="nav-header")
             a(href="/login" class="nav-header__profile-name") Войти
         else
             img(src="https://ui-avatars.com/api/?name=" + username + "&rounded=true&size=48" class="nav-header__profile-picture")
-            a(href="/user/" + username class="nav-header__profile-name") #{username}
-        //TODO добавить выход из аккаунта
+            div(class='nav-header__profile-container')
+                a(href="/user/" + username class="nav-header__profile-name") #{username}
+                button(class='nav-header__logout' id='logout' onclick='logOut();') выйти
 
 
 

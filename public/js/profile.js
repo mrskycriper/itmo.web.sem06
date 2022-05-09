@@ -1,39 +1,32 @@
-const showEditRole = () => {
+// Показать/скрыть редактирование
+
+function showEditRole() {
   let form = document.getElementById('role-form');
   if (form.style.getPropertyValue('display') === 'none') {
     form.style.setProperty('display', 'block');
   } else {
     form.style.setProperty('display', 'none');
   }
-};
-const showEditBio = () => {
+}
+function showEditBio() {
   let form = document.getElementById('bio-form');
   if (form.style.getPropertyValue('display') === 'none') {
     form.style.setProperty('display', 'block');
   } else {
     form.style.setProperty('display', 'none');
   }
-};
+}
 
-window.addEventListener('load', () => {
-  let editRole = document.querySelector("button[id='edit-role']");
-  if (editRole != null) {
-    editRole.onclick = (event) => {
-      event.preventDefault();
-      showEditRole();
-    };
+function showDelete() {
+  let form = document.getElementById('danger-container');
+  if (form.style.getPropertyValue('display') === 'none') {
+    form.style.setProperty('display', 'block');
+  } else {
+    form.style.setProperty('display', 'none');
   }
-});
+}
 
-window.addEventListener('load', () => {
-  let editBio = document.querySelector("button[id='edit-bio']");
-  if (editBio != null) {
-    editBio.onclick = (event) => {
-      event.preventDefault();
-      showEditBio();
-    };
-  }
-});
+// Редактирование
 
 function getRoleData() {
   let isModerator = false;
@@ -53,47 +46,32 @@ function getRoleData() {
   };
 }
 
+function editRole(userName) {
+  const roleData = getRoleData();
+  _api.updateRole(userName, roleData.isModerator, roleData.isAdmin).then(() => {
+    window.location.reload();
+  });
+}
+
 function getBioData() {
   return {
     bio: document.querySelector("textarea[id='bio']").value,
   };
 }
 
-const editRole = () => {
-  const roleData = getRoleData();
-  console.log(roleData);
-  const name = document.getElementById('name');
-  _api
-    .updateRole(name.textContent, roleData.isModerator, roleData.isAdmin)
-    .then(() => {
-      window.location.reload();
-    });
-};
-
-const editBio = () => {
+function editBio(userName) {
   const bioData = getBioData();
-  const name = document.getElementById('name');
-  _api.updateBio(name.textContent, bioData.bio).then(() => {
+  _api.updateBio(userName, bioData.bio).then(() => {
     window.location.reload();
   });
-};
+}
 
-window.addEventListener('load', () => {
-  let roleForm = document.querySelector("form[id='role-form']");
-  if (roleForm != null) {
-    roleForm.onsubmit = (event) => {
-      event.preventDefault();
-      editRole();
-    };
+function deleteUser(userName) {
+  const result = confirm('Вы уверены? Это действие не обратимо.');
+  if (result) {
+    _api.deleteUser(userName).then(() => {
+      window.location.href = '/';
+      alert('Пользователь ' + userName + ' удален.');
+    });
   }
-});
-
-window.addEventListener('load', () => {
-  let bioForm = document.querySelector("form[id='bio-form']");
-  if (bioForm != null) {
-    bioForm.onsubmit = (event) => {
-      event.preventDefault();
-      editBio();
-    };
-  }
-});
+}

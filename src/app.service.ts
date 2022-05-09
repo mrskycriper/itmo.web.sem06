@@ -5,8 +5,6 @@ export class AppService {
   async getMain() {
     return {
       title: 'Главная - OpenForum',
-      authorised: true,
-      username: 'username',
     };
   }
 }

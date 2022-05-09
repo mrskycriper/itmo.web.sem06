@@ -27,8 +27,9 @@
 .profile__card-edit {
     border: none;
     background: none;
-    color: rgba(255, 255, 255, 0.8);
+    color: white;
     text-decoration: none;
+    font-size: 16px;
 }
 
 .profile__card-edit:hover {
@@ -58,6 +59,7 @@
 .profile__card-content {
     margin: 10px;
     font-size: 18px;
+    overflow-wrap: break-word;
 }
 
 .profile__card-from-group {
@@ -67,6 +69,10 @@
 .profile__card-from-label {
     font-size: 18px;
     margin-right: 10px;;
+}
+
+.profile__card-from-input--checkbox {
+    cursor: pointer;
 }
 
 .profile__card-from-input--text {
@@ -96,8 +102,43 @@
     border: none;
     transition: all 0.2s ease-in-out;
     box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
 
 .profile__card-from-submit:hover {
+    box-shadow: none;
+}
+
+.profile__card--danger {
+    margin: 10px;
+    padding: 10px;
+    background-color: crimson;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile__card--danger-container {
+    transition: all 0.2s ease-in-out;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 10px 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.025);
+    background: rgba(75, 79, 81, 0.43);
+}
+
+.profile__delete-button {
+    padding: 10px;
+    font-size: 18px;
+    color: white;
+    background-color: crimson;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.profile__delete-button:hover {
     box-shadow: none;
 }

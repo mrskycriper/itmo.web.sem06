@@ -22,7 +22,9 @@ class Api {
   signIn = (email, password) =>
     this.#api.post('/auth/signin', this.#createForm(email, password));
 
-  checkUsername = (name) => this.#api.post('/checkname', { name: name });
+  signOut = () => this.#api.post('/auth/signout', {});
+
+  checkUsername = (name) => this.#api.post('/checkName', { name: name });
 
   createUser = (name, id) => this.#api.post('/user', { name: name, id: id });
 
@@ -33,7 +35,15 @@ class Api {
     });
 
   updateBio = (name, bio) =>
-    this.#api.put('/user/' + name + '/profile', { bio: bio });
+    this.#api.put('/user/' + name + '/bio', { bio: bio });
+
+  deleteUser = (name) => this.#api.delete('/user/' + name);
 }
 
 const _api = new Api();
+
+function logOut() {
+  _api.signOut().then(() => {
+    window.location.href = '/';
+  });
+}
