@@ -10,32 +10,49 @@ import prisma from '../client';
 @Injectable()
 export class CategoryService {
   async getSomeCategory(userId: string, page: number) {
+    if (page < 1) {
+      throw new BadRequestException('Invalid page number');
+    }
     const take = 5;
-    const user = await this._getUser(userId);
+    let user = null;
+    if (userId != null) {
+      user = await prisma.user.findUnique({ where: { id: userId } });
+    }
 
-    const category = await prisma.category.findMany({
+    const categories = await prisma.category.findMany({
       skip: (page - 1) * take,
       take: take,
+      orderBy: { name: 'asc' },
     });
 
-    const pageCount = Math.ceil(category.length / take);
-    if (page < 1 || page > pageCount) {
+    let pageCount = Math.ceil(categories.length / take);
+    if (pageCount == 0) {
+      pageCount = 1;
+    }
+    if (page > pageCount) {
       throw new BadRequestException('Invalid page number');
+    }
+
+    let admin = false;
+
+    if (user) {
+      if (user.isAdmin || user.isModerator) {
+        admin = true;
+      }
     }
 
     return {
       title: 'Категории - OpenForum',
-      authorised: true,
-      username: user.name,
-      userId: userId,
-      category: category,
+      categories: categories,
       pageCount: pageCount,
       page: page,
+      admin: admin,
     };
   }
 
-  async createCategory(createCategoryDto: CreateCategoryDto) {
-    await prisma.category.create({ data: createCategoryDto });
+  async createCategory(createCategoryDto: CreateCategoryDto): Promise<object> {
+    const category = await prisma.category.create({ data: createCategoryDto });
+    return { categoryId: category.id };
   }
 
   async deleteCategory(categoryId: number) {

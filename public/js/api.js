@@ -44,6 +44,9 @@ class Api {
 
   postMessage = (message, chatId) =>
     this.#api.post('/chats/' + chatId, { content: message });
+
+  createCategory = (name, description) =>
+    this.#api.post('/categories', { name: name, description: description });
 }
 
 const _api = new Api();

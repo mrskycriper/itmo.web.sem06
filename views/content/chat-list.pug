@@ -5,17 +5,17 @@ block additionalScripts
 
 block content
     div(class='chat-list-main')
-        div(class="navigation-container")
+        div(class="chat-navigation-container")
             if page === 1
-                a(href="#" class="navigation-container__navigation-button--disabled") ←
+                a(href="#" class="chat-navigation-container__navigation-button--disabled") ←
             else
-                a(href="/chats?page=" + (page - 1) class="navigation-container__navigation-button") ←
+                a(href="/chats?page=" + (page - 1) class="chat-navigation-container__navigation-button") ←
             if page === pageCount
-                a(href="#" class="navigation-container__navigation-button--disabled") →
+                a(href="#" class="chat-navigation-container__navigation-button--disabled") →
             else
-                a(href="/chats?page=" + (page + 1) class="navigation-container__navigation-button") →
-            p(class="navigation-container__page-count") Страница #{page} из #{pageCount}
-            button(class="navigation-container__create-chat-button" onclick='showCreateChat();') Создать чат
+                a(href="/chats?page=" + (page + 1) class="chat-navigation-container__navigation-button") →
+            p(class="chat-navigation-container__page-count") Страница #{page} из #{pageCount}
+            button(class="chat-navigation-container__create-chat-button" onclick='showCreateChat();') Создать чат
         form(class='create-chat-form' id='create-chat' style='display: none;')
             div(class='create-chat-from__input-group')
                 label(class='create-chat-from__label' for='name') Название

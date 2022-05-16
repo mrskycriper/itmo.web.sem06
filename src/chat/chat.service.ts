@@ -11,13 +11,16 @@ import prisma from '../client';
 @Injectable()
 export class ChatService {
   async getSomeChats(userId: string, page: number): Promise<object> {
+    if (page < 1) {
+      throw new BadRequestException('Invalid page number');
+    }
     const take = 5;
     const count = await this._getChatAmount(userId);
     let pageCount = Math.ceil(count / take);
     if (pageCount == 0) {
       pageCount = 1;
     }
-    if (page < 1 || page > pageCount) {
+    if (page > pageCount) {
       throw new BadRequestException('Invalid page number');
     }
     const chats = await this._getChats(userId, page, take);

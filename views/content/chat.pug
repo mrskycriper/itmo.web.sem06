@@ -8,7 +8,7 @@ block content
     div(class='chat-main')
         p(class='chat-name') #{chatName}
         // TODO Добавить карточку с подробной информацией
-        div(class="message-container")
+        div(class="message-container" id='messages')
           // TODO Починить скролл
           each val in messages
               div(class="message-card")
@@ -20,4 +20,4 @@ block content
                       p(class="message-card__content")= val.content
         form(class="message-from" id='post-message')
             textarea(class='message-from__input' id="message" name="message" placeholder='Введите текст сообщения' required=true maxlength=300)
-            input(class='message-from__submit-button' type="image" src='/images/send-fill.svg' alt='Отправить')
+            input(class='message-from__submit-button' id='send' type="image" src='/images/send-fill.svg' alt='Отправить')
