@@ -1,0 +1,25 @@
+extends ../template
+
+block additionalScripts
+    script(src='/js/chat.js')
+
+block content
+    div(class='chat-main')
+        // TODO Добавить возврат к чату
+        div(class='settings-container')
+            div(class='settings-card')
+                p(class='settings-card__name') Название чата
+                p(class='settings-card__content') #{chatName}
+            div(class='settings-card')
+                p(class='settings-card__name') Описание чата
+                p(class='settings-card__content') #{chatDescription}
+            div(class='settings-card')
+                p(class='settings-card__name') Участники
+                p(class='settings-card__content') развернуть
+            div(class='settings-card--danger')
+                p(class='settings-card__name') Опасная зона
+                    p(class='settings-card__content') развернуть
+        // TODO Добавить переход к списку юзеров
+        // TODO Реализовать функционал приглашения/удаления юзеров
+        // TODO Добавить форму для обновления данных чата
+        // TODO Добавить удаление чата с подтверждением

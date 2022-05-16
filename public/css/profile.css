@@ -1,13 +1,13 @@
 .profile__header-text {
-    margin: 10px;
+    margin: 20px 20px 0;
     text-align: center;
     font-size: 30px;
     font-weight: bold;
 }
 
 .profile__container {
-    padding: 5px;
-    margin: 10px auto;
+    padding: 10px;
+    margin: auto;
     max-width: 800px;
 }
 
@@ -46,7 +46,7 @@
     background: rgba(75, 79, 81, 0.43);
 }
 
-.profile__card-from-options{
+.profile__card-form-options{
     display: flex;
 }
 

@@ -26,18 +26,24 @@ class Api {
 
   checkUsername = (name) => this.#api.post('/checkName', { name: name });
 
-  createUser = (name, id) => this.#api.post('/user', { name: name, id: id });
+  createUser = (name, id) => this.#api.post('/users', { name: name, id: id });
 
   updateRole = (name, isModerator, isAdmin) =>
-    this.#api.put('/user/' + name + '/role', {
+    this.#api.put('/users/' + name + '/role', {
       isModerator: isModerator,
       isAdmin: isAdmin,
     });
 
   updateBio = (name, bio) =>
-    this.#api.put('/user/' + name + '/bio', { bio: bio });
+    this.#api.put('/users/' + name + '/bio', { bio: bio });
 
-  deleteUser = (name) => this.#api.delete('/user/' + name);
+  deleteUser = (name) => this.#api.delete('/users/' + name);
+
+  createChat = (name, description) =>
+    this.#api.post('/chats', { name: name, description: description });
+
+  postMessage = (message, chatId) =>
+    this.#api.post('/chats/' + chatId, { content: message });
 }
 
 const _api = new Api();

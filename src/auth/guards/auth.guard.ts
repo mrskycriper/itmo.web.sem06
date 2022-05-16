@@ -1,29 +1,24 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Error as STError } from 'supertokens-node';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 
-import { verifySession } from 'supertokens-node/recipe/session/framework/express';
+import Session, { SessionContainer } from 'supertokens-node/recipe/session';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const ctx = context.switchToHttp();
-
-    let err = undefined;
-    const resp = ctx.getResponse();
-    // You can create an optional version of this by passing {sessionRequired: false} to verifySession
-    await verifySession()(ctx.getRequest(), resp, (res) => {
-      err = res;
-    });
-
-    if (resp.headersSent) {
-      throw new STError({
-        message: 'RESPONSE_SENT',
-        type: 'RESPONSE_SENT',
-      });
-    }
-
-    if (err) {
-      throw err;
+    const httpContext = context.switchToHttp();
+    let session: SessionContainer;
+    try {
+      session = await Session.getSession(
+        httpContext.getRequest(),
+        httpContext.getResponse(),
+      );
+    } catch (err) {
+      throw new UnauthorizedException('Unauthorized');
     }
 
     return true;

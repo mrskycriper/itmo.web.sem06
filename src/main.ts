@@ -89,7 +89,7 @@ async function bootstrap() {
     allowedHeaders: ['content-type', ...supertokens.getAllCORSHeaders()],
     credentials: true,
   });
-  app.useGlobalFilters(new SupertokensExceptionFilter());
+  // app.useGlobalFilters(new SupertokensExceptionFilter());
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());

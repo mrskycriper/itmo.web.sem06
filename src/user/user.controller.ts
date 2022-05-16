@@ -67,7 +67,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: 'Ok.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
-  @Get('user/:userName')
+  @Get('users/:userName')
   @Render('user-profile')
   async getUserProfile(
     @SessionDecorator() session: SessionContainer,
@@ -93,7 +93,7 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
   @UseGuards(UpdateRoleGuard)
-  @Put('user/:userName/role')
+  @Put('users/:userName/role')
   async updateRole(
     @Param('userName') userName: string,
     @Body() editRoleDto: EditRoleDto,
@@ -114,7 +114,7 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
   @UseGuards(UpdateBioGuard)
-  @Put('user/:userName/bio')
+  @Put('users/:userName/bio')
   async updateBio(
     @Param('userName') userName: string,
     @Body() updateBioDto: UpdateBioDto,
@@ -133,7 +133,7 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiNotFoundResponse({ description: 'User not found.' })
   @UseGuards(DeleteUserGuard)
-  @Delete('user/:userName')
+  @Delete('users/:userName')
   async deleteUser(@Param('userName') userName: string) {
     return await this.usersService.deleteUser(userName);
   }

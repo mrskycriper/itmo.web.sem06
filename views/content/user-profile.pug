@@ -16,7 +16,7 @@ block content
             p(class='profile__card-content') #{role}
             if admin
                 form(id='role-form' style='display: none' class='profile__card-from' onsubmit='editRole("' + userName + '");')
-                    div(class='profile__card-from-options')
+                    div(class='profile__card-form-options')
                         div(class='profile__card-from-group')
                             label(for='isModerator' class='profile__card-from-label') Модератор
                             input(id='isModerator' type='checkbox' class='profile__card-from-input--checkbox')
@@ -34,7 +34,7 @@ block content
             p(class='profile__card-content') #{bio}
             if edit
                 form(id='bio-form' style='display: none' class='profile__card-from' onsubmit='editBio("' + userName + '");')
-                    div(class='profile__card-from-options')
+                    div(class='profile__card-form-options')
                         label(for='bio' class='profile__card-from-label') О себе
                         textarea(id='bio' type='text' class='profile__card-from-input--text' maxlength=1000)
                     input(type='submit' value='Обновить' class='profile__card-from-submit')

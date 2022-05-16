@@ -1,22 +1,22 @@
-.error__card {
+.error-card {
     padding: 5px;
     border-radius: 10px;
-    background-color: #1881B5;
+    background-color: #156f9c;
     box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
-
-    margin: auto;
+    margin: 20px auto auto;
     max-width: 700px;
 }
 
-.error__header {
+.error-card__header {
     margin: 10px;
     color: white;
     font-size: 30px;
     font-weight: bold;
 }
 
-.error__text {
+.error-card__text {
     margin: 10px;
     color: white;
     font-size: 24px;
+    overflow-wrap: break-word;
 }

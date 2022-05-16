@@ -9,7 +9,7 @@ import {
   Put,
   Query,
   Render,
-  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
@@ -23,39 +23,41 @@ import {
   ApiParam,
   ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateChatDto } from './dto/create.chat.dto';
 import { EditChatDto } from './dto/edit.chat.dto';
 import { CreateMessageDto } from './dto/create.message.dto';
-import { TimerInterceptor } from '../timer-interceptor.service';
+import { SessionDecorator } from '../auth/session.decorator';
+import { SessionContainer } from 'supertokens-node/recipe/session';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AccessChatGuard } from '../auth/guards/access.chat.guard';
+import { InviteUserGuard } from '../auth/guards/invite.user.guard';
+import { UninviteUserGuard } from '../auth/guards/uninvite.user.guard';
 
 @ApiTags('chat')
-@UseInterceptors(TimerInterceptor)
 @Controller()
 export class ChatController {
   constructor(private readonly chatsService: ChatService) {}
 
-  @ApiOperation({ summary: 'Get a page of chats' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
+  @ApiOperation({ summary: 'Get single page of chats' })
   @ApiQuery({
     name: 'page',
     type: 'string',
     description: 'Page selector',
   })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiNotFoundResponse()
-  @Get('chat')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AuthGuard)
+  @Get('chats')
   @Render('chat-list')
   async getSomeChats(
-    @Query('userId') userId: string,
+    @SessionDecorator() session: SessionContainer,
     @Query('page', ParseIntPipe) page: number,
   ): Promise<object> {
-    return this.chatsService.getSomeChats(userId, page);
+    return this.chatsService.getSomeChats(session.getUserId(), page);
   }
 
   @ApiOperation({ summary: 'Get single chat' })
@@ -64,192 +66,164 @@ export class ChatController {
     type: 'string',
     description: 'Unique chat identifier',
   })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiOkResponse({ description: 'Chat found.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat not found.' })
-  @Get('chat/:chatId')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Access Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AccessChatGuard)
+  @Get('chats/:chatId')
   @Render('chat')
   async getChat(
-    @Query('userId') userId: string,
     @Param('chatId', ParseIntPipe) chatId: number,
   ): Promise<object> {
-    return this.chatsService.getChat(userId, chatId);
+    return this.chatsService.getChat(chatId);
   }
 
   @ApiOperation({ summary: 'Create new chat' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Chat creator id',
-  })
   @ApiBody({ type: CreateChatDto })
-  @ApiCreatedResponse({ description: 'Chat created.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @Post('chat')
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @UseGuards(AuthGuard)
+  @Post('chats')
   async createChat(
-    @Query('userId') userId: string,
+    @SessionDecorator() session: SessionContainer,
     @Body() createChatDto: CreateChatDto,
-  ) {
-    return this.chatsService.createChat(userId, createChatDto);
-  }
-
-  @ApiOperation({ summary: 'Delete chat' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'chatId',
-    type: 'string',
-    description: 'Unique chat identifier',
-  })
-  @ApiOkResponse({ description: 'Chat deleted.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat not found.' })
-  @Delete('chat/:chatId')
-  async deleteChat(
-    @Query('userId') userId: string,
-    @Param('chatId', ParseIntPipe) chatId: number,
-  ) {
-    return this.chatsService.deleteChat(userId, chatId);
-  }
-
-  @ApiOperation({ summary: 'Invite user in chat' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'chatId',
-    type: 'string',
-    description: 'Unique chat identifier',
-  })
-  @ApiParam({
-    name: 'inviteId',
-    type: 'string',
-    description: 'Invited user id',
-  })
-  @ApiCreatedResponse({ description: 'User invited.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat or user not found.' })
-  @Post('chat/:chatId/invite/:inviteId')
-  async inviteUser(
-    @Query('userId') userId: string,
-    @Param('chatId', ParseIntPipe) chatId: number,
-    @Param('inviteId') inviteId: string,
-  ) {
-    return this.chatsService.inviteUser(userId, chatId, inviteId);
-  }
-
-  @ApiOperation({ summary: 'Remove user from chat' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'chatId',
-    type: 'string',
-    description: 'Unique chat identifier',
-  })
-  @ApiParam({
-    name: 'inviteId',
-    type: 'string',
-    description: 'Invited user id',
-  })
-  @ApiOkResponse({ description: 'User removed.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat or user not found.' })
-  @Delete('chat/:chatId/users/:inviteId')
-  async removeUser(
-    @Param('userId') userId: string,
-    @Param('chatId', ParseIntPipe) chatId: number,
-    @Param('unInviteId') unInviteId: string,
-  ) {
-    return this.chatsService.removeUser(userId, chatId, unInviteId);
-  }
-
-  @ApiOperation({ summary: 'Edit chat properties' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'chatId',
-    type: 'string',
-    description: 'Unique chat identifier',
-  })
-  @ApiBody({ type: EditChatDto })
-  @ApiOkResponse({ description: 'Chat edited.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat not found.' })
-  @Put('chat/:chatId')
-  async editChat(
-    @Query('userId') userId: string,
-    @Param('chatId', ParseIntPipe) chatId: number,
-    @Body() editChatDto: EditChatDto,
-  ) {
-    return this.chatsService.editChat(userId, chatId, editChatDto);
+  ): Promise<object> {
+    return this.chatsService.createChat(session.getUserId(), createChatDto);
   }
 
   @ApiOperation({ summary: 'Post new message' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
   @ApiParam({
     name: 'chatId',
     type: 'string',
     description: 'Unique chat identifier',
   })
   @ApiBody({ type: CreateMessageDto })
-  @ApiCreatedResponse({ description: 'Message created.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat not found.' })
-  @Post('chat/:chatId')
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @Post('chats/:chatId')
   async postMessage(
-    @Query('userId') userId: string,
+    @SessionDecorator() session: SessionContainer,
     @Param('chatId', ParseIntPipe) chatId: number,
     @Body() createMessageDto: CreateMessageDto,
   ) {
-    return this.chatsService.postMessage(userId, chatId, createMessageDto);
+    return this.chatsService.postMessage(
+      session.getUserId(),
+      chatId,
+      createMessageDto,
+    );
   }
 
-  @ApiOperation({ summary: 'Delete message' })
-  @ApiQuery({
-    name: 'userId',
+  @ApiOperation({ summary: 'Get chat settings' })
+  @ApiParam({
+    name: 'chatId',
     type: 'string',
-    description: 'Temporary way to insert userid',
+    description: 'Unique chat identifier',
+  })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Access Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AccessChatGuard)
+  @Get('chats/:chatId/settings')
+  @Render('chat-settings')
+  async getSettings(
+    @Param('chatId', ParseIntPipe) chatId: number,
+  ): Promise<object> {
+    return this.chatsService.getSettings(chatId);
+  }
+
+  @ApiOperation({ summary: 'Delete chat' })
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
+  })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AccessChatGuard)
+  @Delete('chats/:chatId')
+  async deleteChat(@Param('chatId', ParseIntPipe) chatId: number) {
+    return this.chatsService.deleteChat(chatId);
+  }
+
+  @ApiOperation({ summary: 'Invite user in chat' })
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
   })
   @ApiParam({
-    name: 'messageId',
+    name: 'inviteName',
     type: 'string',
-    description: 'Unique message identifier',
+    description: 'Invited user name',
   })
-  @ApiOkResponse({ description: 'Message removed.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Access forbidden.' })
-  @ApiNotFoundResponse({ description: 'Chat or message not found.' })
-  @Delete('messages/:messageId')
-  async deleteMessage(
-    @Query('userId') userId: string,
-    @Param('messageId', ParseIntPipe) messageId: number,
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(InviteUserGuard)
+  @Post('chats/:chatId/invite/:inviteName')
+  async inviteUser(
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Param('inviteName') inviteName: string,
   ) {
-    return this.chatsService.deleteMessage(userId, messageId);
+    return this.chatsService.inviteUser(chatId, inviteName);
+  }
+
+  @ApiOperation({ summary: 'Remove user from chat' })
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
+  })
+  @ApiParam({
+    name: 'unInviteName',
+    type: 'string',
+    description: 'Uninvited user name',
+  })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(UninviteUserGuard)
+  @Delete('chats/:chatId/users/:unInviteName')
+  async removeUser(
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Param('unInviteName') unInviteName: string,
+  ) {
+    return this.chatsService.removeUser(chatId, unInviteName);
+  }
+
+  @ApiOperation({ summary: 'Edit chat properties' })
+  @ApiParam({
+    name: 'chatId',
+    type: 'string',
+    description: 'Unique chat identifier',
+  })
+  @ApiBody({ type: EditChatDto })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @UseGuards(AccessChatGuard)
+  @Put('chats/:chatId')
+  async editChat(
+    @Param('chatId', ParseIntPipe) chatId: number,
+    @Body() editChatDto: EditChatDto,
+  ) {
+    return this.chatsService.editChat(chatId, editChatDto);
   }
 }

@@ -2,11 +2,11 @@ div(class="nav-header")
     p(class="nav-header__logo") OpenForum
     nav(class="nav-header__container")
         a(href="/" class="nav-header__button") Главная
-        a(href="/category?page=1" class="nav-header__button") Тематические разделы
+        a(href="/categories?page=1" class="nav-header__button") Тематические разделы
         if !authorised
             a(href="/login" class="nav-header__button") Чаты
         else
-            a(href="/chat?page=1" class="nav-header__button") Чаты
+            a(href="/chats?page=1" class="nav-header__button") Чаты
     div(class="nav-header__profile")
         if !authorised
             img(src="/images/profile.png" class="nav-header__profile-picture")
@@ -14,7 +14,7 @@ div(class="nav-header")
         else
             img(src="https://ui-avatars.com/api/?name=" + username + "&rounded=true&size=48" class="nav-header__profile-picture")
             div(class='nav-header__profile-container')
-                a(href="/user/" + username class="nav-header__profile-name") #{username}
+                a(href="/users/" + username class="nav-header__profile-name") #{username}
                 button(class='nav-header__logout' id='logout' onclick='logOut();') выйти
 
 

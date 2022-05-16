@@ -1,18 +1,23 @@
 extends ../template
 
+block additionalScripts
+    script(src='/js/chat.js')
+
 block content
-    div(class="chat__page")
-        h1 #{chatName}
-        div(class="message__container")
+    // TODO Добавить вебсокеты
+    div(class='chat-main')
+        p(class='chat-name') #{chatName}
+        // TODO Добавить карточку с подробной информацией
+        div(class="message-container")
+          // TODO Починить скролл
           each val in messages
-              div(class="message__card")
-                  img(src="https://ui-avatars.com/api/?name=" + val.username + "&background=random&rounded=true&size=32" class="message__avatar")
+              div(class="message-card")
+                  img(src="https://ui-avatars.com/api/?name=" + val.author.name + "&rounded=true&size=32" class="message-card__avatar")
                   div
-                      div(class="message__header")
-                        p(class="message__name")= val.username
-                        p(class="message__date")= val.createdAt.toLocaleString('ru-RU', { hour: 'numeric', minute: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' })
-                      p(class="message__content")= val.content
-        div(class="text-input__card")
-            form(action="/chat/" + chatId method="post")
-                input(type="text" id="message" name="message")
-                input(type="submit" value="Отправить")
+                      div(class="message-card__header")
+                        a(class="message-card__name" href='/users/' + val.author.name)= val.author.name
+                        p(class="message-card__date")= val.createdAt.toLocaleString('ru-RU', { hour: 'numeric', minute: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' })
+                      p(class="message-card__content")= val.content
+        form(class="message-from" id='post-message')
+            textarea(class='message-from__input' id="message" name="message" placeholder='Введите текст сообщения' required=true maxlength=300)
+            input(class='message-from__submit-button' type="image" src='/images/send-fill.svg' alt='Отправить')

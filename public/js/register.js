@@ -25,7 +25,7 @@ const register = () => {
     } else {
       let card = document.getElementById('info-card');
       card.innerHTML =
-        '<p class="login__info-text">• Это имя пользователя уже занято</p>';
+        '<p class="login-form__info-text">• Это имя пользователя уже занято</p>';
       card.style = null;
       let input = document.getElementById('username');
       input.value = '';

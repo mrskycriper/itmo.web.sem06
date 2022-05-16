@@ -1,4 +1,4 @@
-.login {
+.login-main {
     display: flex;
     align-items: center;
     width: 100%;
@@ -7,54 +7,43 @@
     box-sizing: border-box;
 }
 
-.login__container {
+.login-container {
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 100%;
     max-height: 100%;
     box-sizing: border-box;
-
     margin: 5px auto;
-
     flex-direction: column;
     flex-shrink: 1;
 }
 
-.login__form {
+.login-form {
     color: white;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-
     max-width: 450px;
-
-
     padding: 30px;
     border-radius: 10px;
-
-
     background-color: #156f9c;
     box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     flex-direction: column;
-
-
-
     flex-shrink: 1;
     flex-grow: 1;
 }
 
-.login__form-group {
+.login-form__input-group {
     display: block;
     margin-bottom: 15px;
     width: 100%;
     height: 100%;
 }
 
-.login__form-input-label {
+.login-form__input-label {
     font-size: 16px;
     line-height: 20px;
     margin-bottom: 5px;
@@ -63,7 +52,7 @@
 }
 
 
-.login__form-input {
+.login-form__input {
     color: white;
     display: inline-block;
     font-size: 16px;
@@ -81,18 +70,18 @@
     outline: none;
 }
 
-.login__form-link:any-link {
+.login-form__link:any-link {
     color: white;
     font-size: 16px;
     padding: 5px;
     text-decoration: none;
 }
 
-.login__form-link:hover {
+.login-form__link:hover {
     text-decoration-line: underline;
 }
 
-.login__form-button {
+.login-form__submit-button {
     font-weight: bold;
     padding: 5px;
     border-radius: 5px;
@@ -102,7 +91,6 @@
     display: inline-block;
     color: white;
     width: 100%;
-
     margin-top: 40px;
     line-height: 30px;
     background-color: #1EA5E8;
@@ -110,15 +98,15 @@
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.login__form-button:hover {
+.login-form__submit-button:hover {
     box-shadow: none;
 }
 
-.login__form-button:active {
+.login-form__submit-button:active {
     box-shadow: inset 0 0 5px 5px rgba(0, 0, 0, 0.1);
 }
 
-.login__logo {
+.logo {
     font-weight: bold;
     display: inline-block;
     padding: 15px;
@@ -130,18 +118,18 @@
     font-family: "XO Verbena", sans-serif;
 }
 
-.login__link:any-link {
+.login-form__link:any-link {
     color: white;
     font-size: 16px;
     padding: 15px;
     text-decoration: none;
 }
 
-.login__link:hover {
+.login-form__link:hover {
     text-decoration-line: underline;
 }
 
-.login__info-card {
+.login-form__info-card {
     color: white;
     width: 100%;
     height: 100%;
@@ -159,13 +147,13 @@
     flex-grow: 1;
 }
 
-.login__info-text {
+.login-form__info-text {
     font-size: 16px;
     margin: 5px;
     display: flex;
 }
 
-.register__form-button {
+.register-form__submit-button {
     font-weight: bold;
     padding: 5px;
     border-radius: 5px;
@@ -183,10 +171,10 @@
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.register__form-button:hover {
+.register-form__submit-button:hover {
     box-shadow: none;
 }
 
-.register__form-button:active {
+.register-form__submit-button:active {
     box-shadow: inset 0 0 5px 5px rgba(0, 0, 0, 0.1);
 }

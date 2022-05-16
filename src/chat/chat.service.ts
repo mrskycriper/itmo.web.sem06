@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,65 +11,64 @@ import prisma from '../client';
 @Injectable()
 export class ChatService {
   async getSomeChats(userId: string, page: number): Promise<object> {
-    const user = await this._getUser(userId);
     const take = 5;
     const count = await this._getChatAmount(userId);
-    const pageCount = Math.ceil(count / take);
+    let pageCount = Math.ceil(count / take);
+    if (pageCount == 0) {
+      pageCount = 1;
+    }
     if (page < 1 || page > pageCount) {
       throw new BadRequestException('Invalid page number');
     }
     const chats = await this._getChats(userId, page, take);
-
+    let empty = true;
+    if (Object.keys(chats).length != 0) {
+      empty = false;
+    }
     return {
       title: 'Чаты - OpenForum',
-      authorised: true,
-      username: user.name,
-      userid: user.id,
       chatData: chats,
       pageCount: pageCount,
       page: page,
+      empty: empty,
     };
   }
 
   async _getChats(userId: string, page: number, take: number): Promise<object> {
-    const user = await prisma.user.findUnique({
+    return await prisma.chat.findMany({
       where: {
-        id: userId,
-      },
-      include: {
         ChatToUser: {
-          take: take,
-          skip: (page - 1) * take,
-          select: {
-            chat: true,
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      take: take,
+      skip: (page - 1) * take,
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
+
+  async _getChatAmount(userId: string): Promise<number> {
+    const chats = await prisma.chat.findMany({
+      where: {
+        ChatToUser: {
+          some: {
+            userId: userId,
           },
         },
       },
     });
-    return user.ChatToUser;
+    return chats.length;
   }
 
-  async _getChatAmount(userId: string) {
-    const count = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        ChatToUser: {
-          select: {
-            chat: true,
-          },
-        },
-      },
-    });
-    return count.ChatToUser.length;
-  }
-
-  async getChat(userId: string, chatId: number): Promise<object> {
-    const user = await this._getUser(userId);
-    const chat = await this._getChat(chatId);
-    await this._checkChat(userId, chatId);
-
+  async getChat(chatId: number): Promise<object> {
+    const chat = await prisma.chat.findUnique({ where: { id: chatId } });
+    if (chat == null) {
+      throw new NotFoundException('Chat not found');
+    }
     const messages = await prisma.message.findMany({
       where: { chatId: chat.id },
       orderBy: {
@@ -78,77 +76,53 @@ export class ChatService {
       },
       include: { author: true },
     });
-
     return {
-      title: 'Чат ' + chat.name + ' - OpenForum',
+      title: chat.name + ' - OpenForum',
       chatName: chat.name,
       chatId: chatId,
-      authorised: true,
-      username: user.name,
-      userid: user.id,
       messages: messages,
     };
   }
 
-  async inviteUser(userId: string, chatId: number, inviteId: string) {
-    await this._getUser(userId);
-    await this._getUser(inviteId);
-    await this._getChat(chatId);
-    await this._checkChat(userId, chatId);
-
+  async inviteUser(chatId: number, inviteName: string) {
+    const user = await prisma.user.findUnique({ where: { name: inviteName } });
     await prisma.chatToUser.create({
-      data: { userId: inviteId, chatId: chatId },
+      data: { userId: user.id, chatId: chatId },
     });
   }
 
-  async removeUser(userId: string, chatId: number, unInviteId: string) {
-    await this._getUser(userId);
-    await this._getUser(unInviteId);
-    await this._getChat(chatId);
-    await this._checkChat(userId, chatId);
-    await this._checkChat(unInviteId, chatId);
-
+  async removeUser(chatId: number, unInviteName: string) {
+    const user = await prisma.user.findUnique({
+      where: { name: unInviteName },
+    });
     await prisma.chatToUser.delete({
       where: {
         chatId_userId: {
           chatId: chatId,
-          userId: unInviteId,
+          userId: user.id,
         },
       },
     });
   }
 
-  async createChat(userId: string, createChatDto: CreateChatDto) {
-    await this._getUser(userId);
+  async createChat(
+    userId: string,
+    createChatDto: CreateChatDto,
+  ): Promise<object> {
     const chat = await prisma.chat.create({
       data: createChatDto,
     });
     await prisma.chatToUser.create({
       data: { userId: userId, chatId: chat.id },
     });
+    return { chatId: chat.id };
   }
 
-  async deleteChat(userId: string, chatId: number) {
-    await this._getUser(userId);
-    const chat = await this._getChat(chatId);
-    await this._checkChat(userId, chatId);
-
-    const deleteMessages = prisma.message.deleteMany({
-      where: { chatId: chat.id },
-    });
-    const deleteChatToUser = prisma.chatToUser.deleteMany({
-      where: { chatId: chat.id },
-    });
-    const deleteChat = prisma.chat.delete({ where: { id: chat.id } });
-
-    await prisma.$transaction([deleteMessages, deleteChatToUser, deleteChat]);
+  async deleteChat(chatId: number) {
+    await prisma.chat.delete({ where: { id: chatId } });
   }
 
-  async editChat(userId: string, chatId: number, editChatDto: EditChatDto) {
-    await this._getUser(userId);
-    await this._getChat(chatId);
-    await this._checkChat(userId, chatId);
-
+  async editChat(chatId: number, editChatDto: EditChatDto) {
     await prisma.chat.update({ where: { id: chatId }, data: editChatDto });
   }
 
@@ -157,9 +131,6 @@ export class ChatService {
     chatId: number,
     createMessageDto: CreateMessageDto,
   ) {
-    await this._getUser(userId);
-    await this._getChat(chatId);
-    await this._checkChat(userId, chatId);
     await prisma.message.create({
       data: {
         createdAt: new Date(),
@@ -170,49 +141,21 @@ export class ChatService {
     });
   }
 
-  async deleteMessage(userId: string, messageId: number) {
-    const user = await this._getUser(userId);
-    const message = await prisma.message.findUnique({
-      where: { id: messageId },
-    });
-    if (message == null) {
-      throw new NotFoundException('Message not found');
-    }
-    if (message.userId != user.id && !user.isModerator && !user.isAdmin) {
-      throw new ForbiddenException('Unauthorised operation');
-    }
-
-    await prisma.message.delete({ where: { id: messageId } });
-  }
-
-  async _getUser(userId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
-  async _getChat(chatId: number) {
+  async getSettings(chatId: number): Promise<object> {
     const chat = await prisma.chat.findUnique({ where: { id: chatId } });
-    if (chat == null) {
-      throw new NotFoundException('Chat not found');
-    }
-    return chat;
-  }
-
-  async _checkChat(userId: string, chatId: number) {
-    const userIds = await prisma.chatToUser.findMany({
-      where: { chatId: chatId },
+    const users = await prisma.user.findMany({
+      where: {
+        ChatToUser: {
+          some: {
+            chatId: chatId,
+          },
+        },
+      },
     });
-    let access = false;
-    for (const i of userIds) {
-      if (i.userId == userId) {
-        access = true;
-      }
-    }
-    if (!access) {
-      throw new ForbiddenException('Unauthorised operation');
-    }
+    return {
+      chatName: chat.name,
+      chatDescription: chat.description,
+      users: users,
+    };
   }
 }
