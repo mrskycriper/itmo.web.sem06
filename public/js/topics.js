@@ -19,7 +19,7 @@ function handleCreateTopic() {
 
   _api.createCategory(formData.name, formData.description).then((response) => {
     if (response.data.categoryId !== null) {
-      window.location.href = '/categories//' + response.data.categoryId;
+      window.location.href = '/categories/' + response.data.categoryId;
     } else {
       window.location.href = '/categories?page=1';
     }

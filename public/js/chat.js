@@ -24,14 +24,21 @@ window.addEventListener('load', () => {
   let form = document.getElementById('post-message');
   let input = document.querySelector("textarea[id='message']");
 
-  form.onsubmit = (event) => {
+  form.onsubmit = async (event) => {
     event.preventDefault();
     if (input.value !== '') {
       let chatId = Number.parseInt(window.location.pathname.split('/')[2]);
+      let userId = null;
+      try {
+        userId = await supertokens.getUserId();
+      } catch (e) {}
+
       socket.emit('messageFromClient', {
         content: input.value,
         chatId: chatId,
+        userId: userId,
       });
+
       input.value = '';
     }
   };
@@ -60,7 +67,7 @@ window.addEventListener('load', () => {
 
     let date = document.createElement('p');
     date.className = 'message-card__date';
-    date.textContent = msg.createdAt.toLocaleString('ru-RU', {
+    date.textContent = Date.parse(msg.createdAt).toLocaleString('ru-RU', {
       hour: 'numeric',
       minute: 'numeric',
       year: 'numeric',
