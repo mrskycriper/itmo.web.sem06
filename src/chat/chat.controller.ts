@@ -198,7 +198,7 @@ export class ChatController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @UseGuards(UninviteUserGuard)
-  @Delete('chats/:chatId/users/:unInviteName')
+  @Delete('chats/:chatId/invite/:unInviteName')
   async removeUser(
     @Param('chatId', ParseIntPipe) chatId: number,
     @Param('unInviteName') unInviteName: string,

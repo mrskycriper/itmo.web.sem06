@@ -36,7 +36,7 @@ block content
                 form(id='bio-form' style='display: none' class='profile__card-from' onsubmit='editBio("' + userName + '");')
                     div(class='profile__card-form-options')
                         label(for='bio' class='profile__card-from-label') О себе
-                        textarea(id='bio' type='text' class='profile__card-from-input--text' maxlength=1000)
+                        textarea(id='bio' type='text' class='profile__card-from-input--text' maxlength=1000)= bio
                     input(type='submit' value='Обновить' class='profile__card-from-submit')
         if edit
             div(class='profile__card--danger')
@@ -44,5 +44,5 @@ block content
                     p(class='profile__card-name') Опасная зона
                     button(class='profile__card-edit' id='show-danger' onclick='showDelete();') развернуть
                 div(class='profile__card--danger-container' id='danger-container' style='display: none')
-                    button(class='profile__delete-button' id='delete-profile' onclick='deleteUser("' + userName + '");') Удалить аккаунт
+                    button(class='profile__delete-button' id='delete-profile' onclick='handleDeleteUser("' + userName + '");') Удалить аккаунт
 

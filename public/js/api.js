@@ -45,6 +45,17 @@ class Api {
   postMessage = (message, chatId) =>
     this.#api.post('/chats/' + chatId, { content: message });
 
+  editChat = (chatId, name, description) =>
+    this.#api.put('/chats/' + chatId, { name: name, description: description });
+
+  inviteUser = (chatId, userName) =>
+    this.#api.post('/chats/' + chatId + '/invite/' + userName);
+
+  unInviteUser = (chatId, userName) =>
+    this.#api.delete('/chats/' + chatId + '/invite/' + userName);
+
+  deleteChat = (chatId) => this.#api.delete('/chats/' + chatId);
+
   createCategory = (name, description) =>
     this.#api.post('/categories', { name: name, description: description });
 }

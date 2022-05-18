@@ -230,13 +230,53 @@
     min-height: 0;
 }
 
-.chat-name {
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.chat-header__name {
     font-size: 24px;
     text-align: center;
     font-weight: bold;
-    margin: 0 auto;
     padding: 20px;
     flex-grow: 0;
+    margin: 0;
+}
+
+.chat-header__settings-link:any-link {
+    padding: 20px;
+    display: flex;
+    width: 24px;
+    height: 24px;
+}
+
+.chat-header__link:any-link {
+    padding: 20px;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chat-header__link:hover {
+    text-decoration: underline;
+}
+
+.chat-header__settings-icon:any-link {
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    width: 24px;
+    height: 24px;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.chat-header__settings-icon:hover {
+    text-decoration: underline;
 }
 
 .message-container {
@@ -302,8 +342,8 @@
 .message-card__content {
     margin: 0;
     font-size: 14px;
-    /*line-height: 16px;*/
     color: white;
+    overflow-wrap: anywhere;
 }
 
 .message-from {
@@ -350,7 +390,6 @@
 }
 
 .settings-container {
-    padding: 10px;
     margin: 0 auto;
     max-width: 800px;
     width: 100%;
@@ -372,14 +411,151 @@
     background-color: crimson;
 }
 
+.settings-card__header {
+    display: flex;
+    justify-content: space-between;
+}
+
 .settings-card__name {
     margin: 10px;
     font-size: 24px;
     font-weight: bold;
 }
 
+.settings-card__edit {
+    border: none;
+    background: none;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.settings-card__edit:hover {
+    text-decoration: underline;
+}
+
 .settings-card__content {
     margin: 10px;
     font-size: 18px;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.user-container {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 10px 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.025);
+    background: rgba(75, 79, 81, 0.43);
+}
+
+.user-container__entry {
+    display: flex;
+    margin: 0 auto;
+    padding: 5px;
+    /*//border-bottom: 2px solid white;*/
+}
+
+.user-container__name:any-link {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.user-container__name:hover {
+    text-decoration: underline;
+}
+
+.user-container__delete {
+    border: none;
+    background: none;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.user-container__delete:hover {
+    text-decoration: underline;
+}
+
+.settings-card__form {
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 10px 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.025);
+    background: rgba(75, 79, 81, 0.43);
+}
+
+.settings-card__form-options {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-card__from-label {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.settings-card__from-input--text {
+    color: white;
+    font-size: 18px;
+    line-height: 30px;
+    overflow: visible;
+    border-radius: 5px;
+    background-clip: padding-box;
+    padding: 5px;
+    border: 1px solid #3232321A;
+    background: rgba(75, 79, 81, 0.43);
+    box-sizing: border-box;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.025);
+    outline: none;
+    width: 400px;
+}
+
+.settings-card__from-input--textarea {
+    color: white;
+    font-size: 18px;
+    overflow: visible;
+    border-radius: 5px;
+    background-clip: padding-box;
+    padding: 5px;
+    border: 1px solid #3232321A;
+    background: rgba(75, 79, 81, 0.43);
+    box-sizing: border-box;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.025);
+    outline: none;
+    resize: none;
+    height: 80px;
+    width: 400px;
+}
+
+.settings-card__from-submit {
+    margin-top: 15px;
+    padding: 10px;
+    font-size: 18px;
+    color: white;
+    background-color: #156f9c;
+    border-radius: 10px;
+    border: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.settings-card__from-submit:hover {
+    box-shadow: none;
+}
+
+.settings-card__from-group {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }

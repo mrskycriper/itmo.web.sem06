@@ -21,6 +21,7 @@ window.addEventListener('load', () => {
 window.addEventListener('load', () => {
   const socket = io();
   let messages = document.querySelector("div[id='messages']");
+  messages.scrollTop = messages.scrollHeight;
   let form = document.getElementById('post-message');
   let input = document.querySelector("textarea[id='message']");
 
@@ -44,7 +45,6 @@ window.addEventListener('load', () => {
   };
 
   socket.on('messageFromServer', function (msg) {
-    console.log(msg);
     let messageCard = document.createElement('div');
     messageCard.className = 'message-card';
 
@@ -67,7 +67,8 @@ window.addEventListener('load', () => {
 
     let date = document.createElement('p');
     date.className = 'message-card__date';
-    date.textContent = Date.parse(msg.createdAt).toLocaleString('ru-RU', {
+    let dateNumber = new Date(msg.createdAt);
+    date.textContent = dateNumber.toLocaleString('ru-RU', {
       hour: 'numeric',
       minute: 'numeric',
       year: 'numeric',
@@ -86,5 +87,70 @@ window.addEventListener('load', () => {
     messageCard.append(avatar);
     messageCard.append(div);
     messages.append(messageCard);
+    messages.scrollTop = messages.scrollHeight;
   });
 });
+
+function showEditChat() {
+  let form = document.getElementById('chat-form');
+  if (form.style.getPropertyValue('display') === 'none') {
+    form.style.setProperty('display', 'block');
+  } else {
+    form.style.setProperty('display', 'none');
+  }
+}
+
+function showUsers() {
+  let form = document.getElementById('user-container');
+  if (form.style.getPropertyValue('display') === 'none') {
+    form.style.setProperty('display', 'block');
+  } else {
+    form.style.setProperty('display', 'none');
+  }
+}
+
+function showDeleteChat() {
+  let form = document.getElementById('danger-container');
+  if (form.style.getPropertyValue('display') === 'none') {
+    form.style.setProperty('display', 'block');
+  } else {
+    form.style.setProperty('display', 'none');
+  }
+}
+
+function getChatData() {
+  return {
+    name: document.querySelector("input[id='name']").value,
+    description: document.querySelector("textarea[id='description']").value,
+  };
+}
+
+function handleEditChat(chatId) {
+  const chatData = getChatData();
+  _api.editChat(chatId, chatData.name, chatData.description).then(() => {
+    window.location.reload();
+  });
+}
+
+function getUserData() {
+  return {
+    name: document.querySelector("input[id='username']").value,
+  };
+}
+
+function handleInviteUser(chatId) {
+  const userData = getUserData();
+  _api.inviteUser(chatId, userData.name).then(() => {
+    window.location.reload();
+  });
+}
+
+function handleDeleteChat(chatId) {
+  const result = confirm('Вы уверены? Это действие не обратимо.');
+  if (result) {
+    _api.deleteChat(chatId).then(() => {
+      window.location.href = '/';
+      alert('Чат удален.');
+    });
+  }
+}

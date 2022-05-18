@@ -66,7 +66,7 @@ function editBio(userName) {
   });
 }
 
-function deleteUser(userName) {
+function handleDeleteUser(userName) {
   const result = confirm('Вы уверены? Это действие не обратимо.');
   if (result) {
     _api.deleteUser(userName).then(() => {

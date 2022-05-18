@@ -156,7 +156,9 @@ export class ChatService {
       },
     });
     return {
+      title: chat.name + ' - OpenForum',
       chatName: chat.name,
+      chatId: chat.id,
       chatDescription: chat.description,
       users: users,
     };

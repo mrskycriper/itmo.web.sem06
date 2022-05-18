@@ -17,7 +17,6 @@ export class ChatGateway {
 
   @SubscribeMessage('messageFromClient')
   async handleEvent(@MessageBody() message: ReceiveMessageDto) {
-    console.log(message);
     if (message.userId == null) {
       throw new UnauthorizedException('Unauthorized');
     }

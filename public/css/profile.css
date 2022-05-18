@@ -30,6 +30,7 @@
     color: white;
     text-decoration: none;
     font-size: 16px;
+    cursor: pointer;
 }
 
 .profile__card-edit:hover {
@@ -37,7 +38,6 @@
 }
 
 .profile__card-from {
-    transition: all 0.2s ease-in-out;
     border: none;
     border-radius: 10px;
     padding: 20px;
@@ -48,6 +48,7 @@
 
 .profile__card-form-options{
     display: flex;
+    flex-direction: column;
 }
 
 .profile__card-name {
@@ -59,16 +60,19 @@
 .profile__card-content {
     margin: 10px;
     font-size: 18px;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .profile__card-from-group {
-    margin-right: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .profile__card-from-label {
     font-size: 18px;
-    margin-right: 10px;;
+    margin-bottom: 10px;
 }
 
 .profile__card-from-input--checkbox {
@@ -87,9 +91,9 @@
     box-sizing: border-box;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.025);
     outline: none;
-    transition: all 0.2s ease-in-out;
-    resize: vertical;
-    max-height: 400px;
+    resize: none;
+    height: 80px;
+    width: 400px;
 }
 
 .profile__card-from-submit {
