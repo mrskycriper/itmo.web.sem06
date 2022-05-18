@@ -35,7 +35,6 @@ import { UpdateBioGuard } from '../auth/guards/update.profile.guard';
 import { UpdateRoleGuard } from '../auth/guards/update.role.guard';
 
 @ApiTags('user')
-@ApiCookieAuth()
 @Controller()
 export class UserController {
   constructor(private readonly usersService: UserService) {}
@@ -80,6 +79,7 @@ export class UserController {
     return await this.usersService.getUserProfile(userId, userName);
   }
 
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Change user role flags' })
   @ApiParam({
     name: 'userName',
@@ -101,6 +101,7 @@ export class UserController {
     return await this.usersService.updateRole(userName, editRoleDto);
   }
 
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Update user biography' })
   @ApiParam({
     name: 'userName',
@@ -122,6 +123,7 @@ export class UserController {
     return await this.usersService.updateBio(userName, updateBioDto);
   }
 
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Delete user' })
   @ApiParam({
     name: 'userName',

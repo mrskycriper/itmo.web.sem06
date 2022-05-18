@@ -15,6 +15,7 @@ import { ChatService } from './chat.service';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -36,11 +37,12 @@ import { InviteUserGuard } from '../auth/guards/invite.user.guard';
 import { UninviteUserGuard } from '../auth/guards/uninvite.user.guard';
 
 @ApiTags('chat')
+@ApiCookieAuth()
 @Controller()
 export class ChatController {
   constructor(private readonly chatsService: ChatService) {}
 
-  @ApiOperation({ summary: 'Get single page of chats' })
+  @ApiOperation({ summary: 'Get users chats' })
   @ApiQuery({
     name: 'page',
     type: 'string',
@@ -60,7 +62,7 @@ export class ChatController {
     return this.chatsService.getSomeChats(session.getUserId(), page);
   }
 
-  @ApiOperation({ summary: 'Get single chat' })
+  @ApiOperation({ summary: 'Get chat' })
   @ApiParam({
     name: 'chatId',
     type: 'string',
@@ -156,7 +158,7 @@ export class ChatController {
     return this.chatsService.deleteChat(chatId);
   }
 
-  @ApiOperation({ summary: 'Invite user in chat' })
+  @ApiOperation({ summary: 'Invite user to chat' })
   @ApiParam({
     name: 'chatId',
     type: 'string',
@@ -206,7 +208,7 @@ export class ChatController {
     return this.chatsService.removeUser(chatId, unInviteName);
   }
 
-  @ApiOperation({ summary: 'Edit chat properties' })
+  @ApiOperation({ summary: 'Edit chat name and description' })
   @ApiParam({
     name: 'chatId',
     type: 'string',
