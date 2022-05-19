@@ -1,6 +1,7 @@
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -9,8 +10,10 @@ import {
   ApiParam,
   ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -21,268 +24,133 @@ import {
   Put,
   Query,
   Render,
-  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { EditPostDto } from './dto/edit.post.dto';
-import { CreateCommentDto } from './dto/create.comment.dto';
-import { EditCommentDto } from './dto/edit.comment.dto';
-import { TimerInterceptor } from '../timer-interceptor.service';
 import { CreatePostDto } from './dto/create.post.dto';
+import { SessionDecorator } from '../auth/session.decorator';
+import { SessionContainer } from 'supertokens-node/recipe/session';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { DeletePostGuard } from '../auth/guards/delete.post.guard';
+import { CreateCommentDto } from './dto/create.comment.dto';
 
 @ApiTags('post')
-@UseInterceptors(TimerInterceptor)
 @Controller()
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @ApiOperation({ summary: 'Get posts list' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Create new post' })
+  @ApiBody({ type: CreatePostDto })
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AuthGuard)
+  @Post('/posts')
+  async createPost(
+    @SessionDecorator() session: SessionContainer,
+    @Body() createPostDto: CreatePostDto,
+  ): Promise<object> {
+    if (session.getUserId() != createPostDto.userId) {
+      throw new BadRequestException('userIds does not match');
+    }
+    return await this.postService.createPost(createPostDto);
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Delete post' })
+  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(DeletePostGuard)
+  @Delete('posts/:postId')
+  async deletePost(@Param('postId', ParseIntPipe) postId: number) {
+    return await this.postService.deletePost(postId);
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Edit post' })
+  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
+  @ApiBody({ type: EditPostDto })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(DeletePostGuard)
+  @Put('posts/:postId')
+  async editPost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() editPostDto: EditPostDto,
+  ) {
+    return await this.postService.editPost(postId, editPostDto);
+  }
+
+  @ApiOperation({ summary: 'Get post' })
+  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
   @ApiQuery({
     name: 'page',
     type: 'string',
     description: 'Page selector',
   })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiNotFoundResponse()
-  @Get('category/:categoryId/topic/:topicId/posts')
-  @Render('post-list')
-  async getTopic(
-    @Query('userId') userId: string,
-    @Query('page', ParseIntPipe) page: number,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
-  ) {
-    return await this.postService.getTopic(userId, categoryId, topicId, page);
-  }
-
-  @ApiOperation({ summary: 'Create new post' })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiBody({ type: CreatePostDto })
-  @ApiCreatedResponse()
-  @ApiBadRequestResponse()
-  @ApiNotFoundResponse()
-  @Post('category/:categoryId/topic/:topicId/posts')
-  async createPost(
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
-    @Body() createPostDto: CreatePostDto,
-  ) {
-    return await this.postService.createPost(
-      categoryId,
-      topicId,
-      createPostDto,
-    );
-  }
-
-  @ApiOperation({ summary: 'Delete single post' })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @Delete('category/:categoryId/topic/:topicId/posts/:postId')
-  async deletePost(
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
-    @Param('postId', ParseIntPipe) postId: number,
-  ) {
-    return await this.postService.deletePost(categoryId, topicId, postId);
-  }
-
-  @ApiOperation({ summary: 'Edit single post' })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
-  @ApiBody({ type: EditPostDto })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @Put('category/:categoryId/topic/:topicId/posts/:postId')
-  async editPost(
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
-    @Param('postId', ParseIntPipe) postId: number,
-    @Body('editPostDto') editPostDto: EditPostDto,
-  ) {
-    return await this.postService.editPost(
-      categoryId,
-      topicId,
-      postId,
-      editPostDto,
-    );
-  }
-
-  @ApiOperation({ summary: 'Get single post' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @Get('category/:categoryId/topic/:topicId/posts/:postId')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @Get('posts/:postId')
   @Render('post')
   async getPost(
-    @Query('userId') userId: string,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
+    @SessionDecorator() session: SessionContainer,
     @Param('postId', ParseIntPipe) postId: number,
+    @Query('page', ParseIntPipe) page: number,
   ): Promise<object> {
-    return await this.postService.getPost(userId, categoryId, topicId, postId);
+    let userId = null;
+    try {
+      userId = session.getUserId();
+    } catch (err) {}
+    return await this.postService.getPost(userId, postId, page);
   }
 
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Create new comment' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
   @ApiBody({ type: CreateCommentDto })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @Post('category/:categoryId/topic/:topicId/posts/:postId/comments')
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AuthGuard)
+  @Post('comments')
   async createComment(
-    @Query('userId') userId: string,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
-    @Param('postId', ParseIntPipe) postId: number,
+    @SessionDecorator() session: SessionContainer,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    return await this.postService.createComment(
-      userId,
-      categoryId,
-      topicId,
-      postId,
-      createCommentDto,
-    );
+    if (session.getUserId() != createCommentDto.userId) {
+      throw new BadRequestException('userIds does not match');
+    }
+    return await this.postService.createComment(createCommentDto);
   }
 
-  @ApiOperation({ summary: 'Delete single comment' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get post settings' })
   @ApiParam({
-    name: 'categoryId',
+    name: 'postId',
     type: 'string',
-    description: 'Unique category id',
+    description: 'Unique post identifier',
   })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
-  @ApiParam({
-    name: 'commentId',
-    type: 'string',
-    description: 'Unique comment identifier',
-  })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @Delete(
-    'category/:categoryId/topic/:topicId/posts/:postId/comments/:commentId',
-  )
-  async deleteComment(
-    @Query('userId') userId: string,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(DeletePostGuard)
+  @Get('posts/:postId/settings')
+  @Render('post-settings')
+  async getSettings(
     @Param('postId', ParseIntPipe) postId: number,
-    @Param('commentId', ParseIntPipe) commentId: number,
-  ) {
-    return await this.postService.deleteComment(
-      userId,
-      categoryId,
-      topicId,
-      postId,
-      commentId,
-    );
-  }
-
-  @ApiOperation({ summary: 'Edit single comment' })
-  @ApiQuery({
-    name: 'userId',
-    type: 'string',
-    description: 'Temporary way to insert userid',
-  })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
-  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
-  @ApiParam({ name: 'postId', type: 'number', description: 'Unique post id' })
-  @ApiParam({
-    name: 'commentId',
-    type: 'string',
-    description: 'Unique comment identifier',
-  })
-  @ApiBody({ type: EditCommentDto })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
-  @Put('category/:categoryId/topic/:topicId/posts/:postId/comments/:commentId')
-  async editComment(
-    @Query('userId') userId: string,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
-    @Param('topicId', ParseIntPipe) topicId: number,
-    @Param('postId', ParseIntPipe) postId: number,
-    @Param('commentId', ParseIntPipe) commentId: number,
-    @Body() editCommentDto: EditCommentDto,
-  ) {
-    return await this.postService.editComment(
-      userId,
-      categoryId,
-      topicId,
-      postId,
-      commentId,
-      editCommentDto,
-    );
+  ): Promise<object> {
+    return await this.postService.getSettings(postId);
   }
 }

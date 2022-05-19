@@ -1,8 +1,8 @@
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiCookieAuth,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -32,6 +32,7 @@ import { CreateTopicDto } from './dto/create.topic.dto';
 import { SessionDecorator } from '../auth/session.decorator';
 import { SessionContainer } from 'supertokens-node/lib/build/recipe/session';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @ApiTags('topic')
 @UseInterceptors(TimerInterceptor)
@@ -39,69 +40,81 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 export class TopicController {
   constructor(private readonly topicService: TopicService) {}
 
-  @ApiOperation({ summary: 'Get topics' })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
+  @ApiOperation({ summary: 'Get topic' })
   @ApiQuery({
     name: 'page',
     type: 'string',
     description: 'Page selector',
   })
+  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
   @ApiOkResponse({ description: 'OK' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiNotFoundResponse({ description: 'Not Found' })
-  @Get('categories/:categoryId/topics')
-  @Render('topics')
-  async getSomeTopics(
+  @Get('topics/:topicId')
+  @Render('posts')
+  async getTopic(
     @SessionDecorator() session: SessionContainer,
-    @Param('categoryId', ParseIntPipe) categoryId: number,
     @Query('page', ParseIntPipe) page: number,
-  ): Promise<object> {
+    @Param('topicId', ParseIntPipe) topicId: number,
+  ) {
     let userId = null;
     try {
       userId = session.getUserId();
     } catch (err) {}
-    return await this.topicService.getSomeTopics(userId, categoryId, page);
+    return await this.topicService.getTopic(userId, topicId, page);
   }
 
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get topic settings' })
+  @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AdminGuard)
+  @Get('topics/:topicId/settings')
+  @Render('topic-settings')
+  async getSettings(
+    @Param('topicId', ParseIntPipe) topicId: number,
+  ): Promise<object> {
+    return await this.topicService.getSettings(topicId);
+  }
+
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Create new topic' })
-  @ApiParam({
-    name: 'categoryId',
-    type: 'string',
-    description: 'Unique category id',
-  })
   @ApiBody({ type: CreateTopicDto })
   @ApiCreatedResponse({ description: 'Created' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'Not Found' })
-  @UseGuards(AuthGuard) // TODO Обновить гарду
+  @UseGuards(AuthGuard)
   @Post('topics')
-  async createTopic(@Body() createTopicDto: CreateTopicDto) {
+  async createTopic(@Body() createTopicDto: CreateTopicDto): Promise<object> {
     return await this.topicService.createTopic(createTopicDto);
   }
 
-  @ApiOperation({ summary: 'Delete single topic' })
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Delete topic' })
   @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
   @ApiOkResponse({ description: 'OK' })
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AdminGuard)
   @Delete('topics/:topicId')
   async deleteTopic(@Param('topicId') topicId: number) {
     return await this.topicService.deleteTopic(topicId);
   }
 
-  @ApiOperation({ summary: 'Edit single topic' })
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Edit topics name and description' })
   @ApiParam({ name: 'topicId', type: 'string', description: 'Unique topic id' })
   @ApiBody({ type: EditTopicDto })
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
-  @ApiForbiddenResponse()
-  @ApiNotFoundResponse()
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AdminGuard)
   @Put('topics/:topicId')
   async editTopic(
     @Param('topicId', ParseIntPipe) topicId: number,

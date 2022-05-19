@@ -1,217 +1,128 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { EditPostDto } from './dto/edit.post.dto';
 import { CreateCommentDto } from './dto/create.comment.dto';
-import { EditCommentDto } from './dto/edit.comment.dto';
 import { CreatePostDto } from './dto/create.post.dto';
 import prisma from '../client';
 
 @Injectable()
 export class PostService {
-  async getTopic(
-    userId: string,
-    categoryId: number,
-    topicId: number,
-    page: number,
-  ) {
-    const take = 5;
-    const user = await this._getUser(userId);
-    await this._getCategory(categoryId);
-    const topic = await this._getTopic(topicId);
-
-    const posts = await prisma.post.findMany({
-      skip: (page - 1) * take,
-      take: take,
-      where: { topicId: topicId },
-    });
-
-    const pageCount = Math.ceil(posts.length / take);
-    if (page < 1 || page > pageCount) {
-      throw new BadRequestException('Invalid page number');
-    }
-
-    return {
-      title: topic.name + ' - OpenForum',
-      //authorised: true,
-      //username: user.name,
-      //userId: userId,
-      topicName: topic.name,
-      topicId: topicId,
-      posts: posts,
-      pageCount: pageCount,
-      page: page,
-    };
-  }
-
-  async createPost(
-    categoryId: number,
-    topicId: number,
-    createPostDto: CreatePostDto,
-  ) {
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    await prisma.post.create({
-      data: createPostDto,
-    });
-  }
-
-  async deletePost(categoryId: number, topicId: number, postId: number) {
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    await this._getPost(postId);
-    await prisma.post.delete({ where: { id: postId } });
-  }
-
-  async editPost(
-    categoryId: number,
-    topicId: number,
-    postId: number,
-    editPostDto: EditPostDto,
-  ) {
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    await this._getPost(postId);
-    await prisma.post.update({ where: { id: postId }, data: editPostDto });
-  }
-
-  async getPost(
-    userId: string,
-    categoryId: number,
-    topicId: number,
-    postId: number,
-  ) {
-    const user = await this._getUser(userId);
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    const post = await this._getPost(postId);
-    if (
-      !post.published &&
-      (user.id != post.userId || !user.isAdmin || !user.isModerator)
-    ) {
-      throw new ForbiddenException('Access forbidden');
-    }
-    const comments = await prisma.comment.findMany({
-      where: { postId: postId },
-    });
-    return {
-      title: post.title + ' - OpenForum',
-      postTitle: post.title,
-      postContent: post.content,
-      createdAt: post.createdAt,
-      //authorised: true,
-      //username: user.name,
-      //userid: user.id,
-      comments: comments,
-      postId: postId,
-    };
-  }
-
-  async createComment(
-    userId: string,
-    categoryId: number,
-    topicId: number,
-    postId: number,
-    createCommentDto: CreateCommentDto,
-  ) {
-    await this._getUser(userId);
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    const post = await this._getPost(postId);
-    if (!post.published) {
-      throw new ForbiddenException('Forbidden operation');
-    }
-    await prisma.comment.create({ data: createCommentDto });
-  }
-
-  async deleteComment(
-    userId: string,
-    categoryId: number,
-    topicId: number,
-    postId: number,
-    commentId: number,
-  ) {
-    const user = await this._getUser(userId);
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    await this._getPost(postId);
-    const comment = await this._getComment(commentId);
-    if (user.id != comment.userId || !user.isAdmin || !user.isModerator) {
-      throw new ForbiddenException('Forbidden operation');
-    }
-    await prisma.comment.delete({ where: { id: commentId } });
-  }
-
-  async editComment(
-    userId: string,
-    categoryId: number,
-    topicId: number,
-    postId: number,
-    commentId: number,
-    editCommentDto: EditCommentDto,
-  ) {
-    const user = await this._getUser(userId);
-    await this._getCategory(categoryId);
-    await this._getTopic(topicId);
-    await this._getPost(postId);
-    const comment = await this._getComment(commentId);
-    if (user.id != comment.userId) {
-      throw new ForbiddenException('Forbidden operation');
-    }
-    await prisma.comment.update({
-      where: { id: commentId },
-      data: editCommentDto,
-    });
-  }
-
-  async _getUser(userId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
-  async _getCategory(categoryId: number) {
-    const category = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
-    if (category == null) {
-      throw new NotFoundException('Category not found');
-    }
-    return category;
-  }
-
-  async _getTopic(topicId: number) {
+  async createPost(createPostDto: CreatePostDto): Promise<object> {
     const topic = await prisma.topic.findUnique({
-      where: { id: topicId },
+      where: { id: createPostDto.topicId },
     });
     if (topic == null) {
       throw new NotFoundException('Topic not found');
     }
-    return topic;
+    const post = await prisma.post.create({
+      data: createPostDto,
+    });
+    return { postId: post.id };
   }
 
-  async _getPost(postId: number) {
+  async deletePost(postId: number) {
+    await prisma.post.delete({ where: { id: postId } });
+  }
+
+  async editPost(postId: number, editPostDto: EditPostDto) {
     const post = await prisma.post.findUnique({
       where: { id: postId },
     });
     if (post == null) {
       throw new NotFoundException('Post not found');
     }
-    return post;
+    await prisma.post.update({ where: { id: postId }, data: editPostDto });
   }
 
-  async _getComment(commentId: number) {
-    const comment = await prisma.post.findUnique({
-      where: { id: commentId },
-    });
-    if (comment == null) {
-      throw new NotFoundException('Comment not found');
+  async getPost(userId: string, postId: number, page: number) {
+    if (page < 1) {
+      throw new BadRequestException('Invalid page number');
     }
-    return comment;
+    const take = 5;
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+    if (post == null) {
+      throw new NotFoundException('Post not found');
+    }
+    let user = null;
+    let edit = false;
+    let canPost = false;
+    if (userId != null) {
+      user = await prisma.user.findUnique({ where: { id: userId } });
+      canPost = true;
+      if (post.userId == user.id || user.isAdmin || user.isModerator) {
+        edit = true;
+      }
+    }
+
+    const comments = await prisma.comment.findMany({
+      skip: (page - 1) * take,
+      take: take,
+      orderBy: { createdAt: 'asc' },
+      where: { postId: postId },
+      include: {
+        author: true,
+      },
+    });
+    let empty = true;
+    if (Object.keys(comments).length != 0) {
+      empty = false;
+    }
+    const commentsAll = await prisma.comment.findMany({
+      where: { postId: postId },
+    });
+
+    let pageCount = Math.ceil(commentsAll.length / take);
+    if (pageCount == 0) {
+      pageCount = 1;
+    }
+    if (page > pageCount) {
+      throw new BadRequestException('Invalid page number');
+    }
+
+    const author = await prisma.user.findUnique({ where: { id: post.userId } });
+    return {
+      title: post.title + ' - OpenForum',
+      postTitle: post.title,
+      postContent: post.content,
+      createdAt: post.createdAt,
+      authorName: author.name,
+      comments: comments,
+      postId: postId,
+      page: page,
+      pageCount: pageCount,
+      edit: edit,
+      post: canPost,
+      empty: empty,
+    };
+  }
+
+  async createComment(createCommentDto: CreateCommentDto) {
+    const post = await prisma.post.findUnique({
+      where: { id: createCommentDto.postId },
+    });
+    if (post == null) {
+      throw new NotFoundException('Post not found');
+    }
+    await prisma.comment.create({ data: createCommentDto });
+  }
+
+  async getSettings(postId: number) {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+    if (post == null) {
+      throw new NotFoundException('Post not found');
+    }
+    return {
+      title: post.title + ' - OpenForum',
+      postTitle: post.title,
+      postContent: post.content,
+      postId: postId,
+    };
   }
 }

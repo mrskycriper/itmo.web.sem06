@@ -39,3 +39,10 @@ body {
 main {
     flex-grow: 1
 }
+
+.main-text {
+    max-width: 800px;
+    font-size: 30px;
+    font-weight: bold;
+    margin: 20px auto;
+}

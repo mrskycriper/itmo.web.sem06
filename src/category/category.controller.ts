@@ -1,6 +1,7 @@
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -38,7 +39,7 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @ApiOperation({ summary: 'Get categories list' })
+  @ApiOperation({ summary: 'Get categories' })
   @ApiQuery({
     name: 'page',
     type: 'string',
@@ -48,7 +49,7 @@ export class CategoryController {
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @Get('categories')
   @Render('categories')
-  async getSomeCategory(
+  async getCategories(
     @SessionDecorator() session: SessionContainer,
     @Query('page', ParseIntPipe) page: number,
   ): Promise<object> {
@@ -56,9 +57,10 @@ export class CategoryController {
     try {
       userId = session.getUserId();
     } catch (err) {}
-    return await this.categoryService.getSomeCategory(userId, page);
+    return await this.categoryService.getCategories(userId, page);
   }
 
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Create new category' })
   @ApiBody({ type: CreateCategoryDto })
   @ApiCreatedResponse({ description: 'Created' })
@@ -72,7 +74,36 @@ export class CategoryController {
     return await this.categoryService.createCategory(createCategoryDto);
   }
 
-  @ApiOperation({ summary: 'Delete single category' })
+  @ApiOperation({ summary: 'Get category' })
+  @ApiParam({
+    name: 'categoryId',
+    type: 'string',
+    description: 'Unique category id',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: 'string',
+    description: 'Page selector',
+  })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @Get('categories/:categoryId')
+  @Render('topics')
+  async getCategory(
+    @SessionDecorator() session: SessionContainer,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+    @Query('page', ParseIntPipe) page: number,
+  ): Promise<object> {
+    let userId = null;
+    try {
+      userId = session.getUserId();
+    } catch (err) {}
+    return await this.categoryService.getCategory(userId, categoryId, page);
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Delete category' })
   @ApiParam({
     name: 'categoryId',
     type: 'string',
@@ -88,7 +119,8 @@ export class CategoryController {
     return await this.categoryService.deleteCategory(categoryId);
   }
 
-  @ApiOperation({ summary: 'Edit single category' })
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Edit category name and description' })
   @ApiParam({
     name: 'categoryId',
     type: 'string',
@@ -106,5 +138,25 @@ export class CategoryController {
     @Body() editCategoryDto: EditCategoryDto,
   ) {
     return await this.categoryService.editCategory(categoryId, editCategoryDto);
+  }
+
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get category settings' })
+  @ApiParam({
+    name: 'categoryId',
+    type: 'string',
+    description: 'Unique category identifier',
+  })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @UseGuards(AdminGuard)
+  @Get('categories/:categoryId/settings')
+  @Render('category-settings')
+  async getSettings(
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ): Promise<object> {
+    return await this.categoryService.getSettings(categoryId);
   }
 }

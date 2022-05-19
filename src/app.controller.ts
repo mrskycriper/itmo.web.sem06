@@ -10,8 +10,8 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @ApiOperation({ summary: 'Render main page' })
-  @ApiOkResponse({ description: 'Ok.' })
+  @ApiOperation({ summary: 'Get main page' })
+  @ApiOkResponse({ description: 'OK' })
   @Get('/')
   @Render('main')
   async getMain() {

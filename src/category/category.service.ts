@@ -9,7 +9,7 @@ import prisma from '../client';
 
 @Injectable()
 export class CategoryService {
-  async getSomeCategory(userId: string, page: number) {
+  async getCategories(userId: string, page: number) {
     if (page < 1) {
       throw new BadRequestException('Invalid page number');
     }
@@ -24,8 +24,14 @@ export class CategoryService {
       take: take,
       orderBy: { name: 'asc' },
     });
+    let empty = true;
+    if (Object.keys(categories).length != 0) {
+      empty = false;
+    }
 
-    let pageCount = Math.ceil(categories.length / take);
+    const categoriesAll = await prisma.category.findMany({});
+
+    let pageCount = Math.ceil(categoriesAll.length / take);
     if (pageCount == 0) {
       pageCount = 1;
     }
@@ -47,6 +53,7 @@ export class CategoryService {
       pageCount: pageCount,
       page: page,
       admin: admin,
+      empty: empty,
     };
   }
 
@@ -78,11 +85,77 @@ export class CategoryService {
     });
   }
 
-  async _getUser(userId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user == null) {
-      throw new NotFoundException('User not found');
+  async getCategory(userId: string, categoryId: number, page: number) {
+    if (page < 1) {
+      throw new BadRequestException('Invalid page number');
     }
-    return user;
+    const take = 5;
+    let edit = false;
+    if (userId != null) {
+      edit = true;
+    }
+    let admin = false;
+    let user = null;
+    if (userId) {
+      user = await prisma.user.findUnique({ where: { id: userId } });
+    }
+
+    if (user) {
+      if (user.isAdmin || user.isModerator) {
+        admin = true;
+      }
+    }
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (category == null) {
+      throw new NotFoundException('Category not found');
+    }
+
+    const topics = await prisma.topic.findMany({
+      skip: (page - 1) * take,
+      take: take,
+      where: { categoryId: categoryId },
+    });
+    let empty = true;
+    if (Object.keys(topics).length != 0) {
+      empty = false;
+    }
+
+    const topicsAll = await prisma.topic.findMany({
+      where: { categoryId: categoryId },
+    });
+
+    let pageCount = Math.ceil(topicsAll.length / take);
+    if (pageCount == 0) {
+      pageCount = 1;
+    }
+    if (page > pageCount) {
+      throw new BadRequestException('Invalid page number');
+    }
+
+    return {
+      title: category.name + ' - OpenForum',
+      categoryName: category.name,
+      categoryId: category.id,
+      topics: topics,
+      pageCount: pageCount,
+      page: page,
+      edit: edit,
+      admin: admin,
+      empty: empty,
+    };
+  }
+
+  async getSettings(categoryId: number) {
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    return {
+      title: category.name + ' - OpenForum',
+      categoryName: category.name,
+      categoryId: category.id,
+      categoryDescription: category.description,
+    };
   }
 }

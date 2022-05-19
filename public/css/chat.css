@@ -5,13 +5,13 @@
 
 .chat-navigation-container {
     margin: auto;
-    padding: 10px;
     max-width: 800px;
     display: flex;
     justify-content: center;
     flex-grow: 0;
     width: 100%;
     height: 100%;
+    padding: 10px 10px 0;
 }
 
 .chat-navigation-container__navigation-button:any-link {
@@ -179,7 +179,7 @@
 }
 
 .empty-list {
-    margin: auto;
+    margin: 10px auto;
     padding: 20px;
     border-radius: 10px;
     background-color: #156f9c;
@@ -254,7 +254,7 @@
 }
 
 .chat-header__link:any-link {
-    padding: 20px;
+    padding: 20px 20px 10px;
     text-decoration: none;
     color: white;
     font-size: 20px;
@@ -271,7 +271,6 @@
     font-size: 20px;
     width: 24px;
     height: 24px;
-    padding: 20px;
     cursor: pointer;
 }
 
@@ -287,8 +286,6 @@
     max-width: 800px;
     width: 100%;
     overflow-y: scroll;
-    /*flex-grow: 1;*/
-    /*display: flex;*/
     flex-direction: column;
     justify-content: end;
     height: 50vh;
@@ -314,6 +311,7 @@
 
 .message-card__header {
     display: flex;
+    margin-bottom: 5px;
 }
 
 .message-card__name:any-link {
@@ -321,7 +319,6 @@
     margin: 0;
     font-size: 16px;
     color: white;
-    padding-bottom: 5px;
     font-weight: bold;
     text-decoration: none;
 }
@@ -335,7 +332,6 @@
     margin: 0;
     font-size: 10px;
     color: white;
-    padding-bottom: 5px;
     padding-left: 10px;
 }
 

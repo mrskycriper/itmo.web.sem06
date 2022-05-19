@@ -58,6 +58,55 @@ class Api {
 
   createCategory = (name, description) =>
     this.#api.post('/categories', { name: name, description: description });
+
+  editCategory = (categoryId, name, description) =>
+    this.#api.put('/categories/' + categoryId, {
+      name: name,
+      description: description,
+    });
+
+  deleteCategory = (categoryId) =>
+    this.#api.delete('/categories/' + categoryId);
+
+  createTopic = (name, description, categoryId) =>
+    this.#api.post('/topics', {
+      name: name,
+      description: description,
+      categoryId: categoryId,
+    });
+
+  editTopic = (topicId, name, description) =>
+    this.#api.put('/topics/' + topicId, {
+      name: name,
+      description: description,
+    });
+
+  deleteTopic = (topicId) => this.#api.delete('/topics/' + topicId);
+
+  createPost = (title, content, topicId, userId) =>
+    this.#api.post('/posts', {
+      title: title,
+      content: content,
+      topicId: topicId,
+      userId: userId,
+    });
+
+  editPost = (postId, title, content) =>
+    this.#api.put('/posts/' + postId, {
+      title: title,
+      content: content,
+    });
+
+  deletePost = (postId) => this.#api.delete('/posts/' + postId);
+
+  createComment = (content, postId, userId) =>
+    this.#api.post('/comments', {
+      content: content,
+      userId: userId,
+      postId: postId,
+    });
+
+  deleteComment = (commentId) => this.#api.delete('/comments/' + commentId);
 }
 
 const _api = new Api();

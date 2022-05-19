@@ -19,12 +19,6 @@ export class PostEntity {
   })
   content: string;
 
-  @ApiProperty({
-    example: 'true',
-    description: 'Marks if post is publicly visible',
-  })
-  published: boolean;
-
   @ApiProperty({ example: '3421', description: 'Author id' })
   userId: number;
 

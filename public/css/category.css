@@ -42,9 +42,19 @@
     color: white;
 }
 
+.categories-navigation-container {
+    margin: auto;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    flex-grow: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px 10px 0;
+}
+
 .category-navigation-container {
     margin: auto;
-    padding: 10px;
     max-width: 800px;
     display: flex;
     justify-content: center;

@@ -16,12 +16,6 @@ export class CommentEntity {
   })
   createdAt: Date;
 
-  @ApiProperty({
-    example: 'true',
-    description: 'Marks if comment was edited',
-  })
-  edited: boolean;
-
   @ApiProperty({ example: '3421', description: 'Author id' })
   userId: number;
 

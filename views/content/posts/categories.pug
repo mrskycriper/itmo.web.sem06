@@ -1,11 +1,11 @@
 extends ../../template
 
 block additionalScripts
-    script(src='/js/categories.js')
+    script(src='/js/category.js')
 
 block content
     div(class='categories-main')
-        div(class="category-navigation-container")
+        div(class="categories-navigation-container")
             if page === 1
                 a(href="#" class="category-navigation-container__navigation-button--disabled") ←
             else
@@ -16,7 +16,7 @@ block content
                 a(href="/categories?page=" + (page + 1) class="category-navigation-container__navigation-button") →
             p(class="category-navigation-container__page-count") Страница #{page} из #{pageCount}
             if(admin)
-                button(class="category-navigation-container__create-chat-button" onclick='showCreateCategory();') Создать
+                button(class="category-navigation-container__create-chat-button" onclick='showCreateCategory();') Создать категорию
         if(admin)
             form(class='create-category-form' id='create-category' style='display: none;')
                 div(class='create-category-from__input-group')
@@ -27,8 +27,11 @@ block content
                     textarea(class='create-category-from__input--textarea' id='description' maxlength=300)
                 input(class='create-category-from__submit-button' type='submit' value='Создать')
         div(class="category-container")
-          each val in categories
-              div(class="category-card")
-                  div
-                      a(href="/category/"+ val.id class="category-card__header" )= val.name
-                      p(class="category-card__description")= val.description
+            if (!empty)
+                each category in categories
+                    div(class="category-card")
+                        div
+                            a(href="/categories/" + category.id + '?page=1' class="category-card__header" )= category.name
+                            p(class="category-card__description")= category.description
+            else
+                p(class='empty-list') Нет доступных категорий

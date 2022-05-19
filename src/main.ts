@@ -23,12 +23,13 @@ import { CreateCommentDto } from './post/dto/create.comment.dto';
 import { EditCategoryDto } from './category/dto/edit.category.dto';
 import { EditTopicDto } from './topic/dto/edit.topic.dto';
 import { EditPostDto } from './post/dto/edit.post.dto';
-import { EditCommentDto } from './post/dto/edit.comment.dto';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './all.exception.filter';
 import supertokens from 'supertokens-node';
-import { SupertokensExceptionFilter } from './auth/auth.filter';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { CheckUsernameDto } from './user/dto/check.username.dto';
+import { EditRoleDto } from './user/dto/edit.role.dto';
+import { ReceiveMessageDto } from './chat/dto/receive.message.dto';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -46,7 +47,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('OpenForum api')
     .setDescription('The OpenForum REST API definition')
-    .setVersion('6.2.0')
+    .setVersion('7.0.0')
     .addCookieAuth()
     .build();
 
@@ -60,22 +61,21 @@ async function bootstrap() {
       TopicEntity,
       PostEntity,
       MessageEntity,
-
+      CheckUsernameDto,
       CreateUserDto,
+      EditRoleDto,
       UpdateBioDto,
-
       CreateChatDto,
-      EditChatDto,
       CreateMessageDto,
-
+      EditChatDto,
+      ReceiveMessageDto,
       CreateCategoryDto,
-      CreateTopicDto,
-      CreatePostDto,
-      CreateCommentDto,
       EditCategoryDto,
+      CreateTopicDto,
       EditTopicDto,
+      CreatePostDto,
       EditPostDto,
-      EditCommentDto,
+      CreateCommentDto,
     ],
   });
   SwaggerModule.setup('api', app, document, {
@@ -89,11 +89,10 @@ async function bootstrap() {
     allowedHeaders: ['content-type', ...supertokens.getAllCORSHeaders()],
     credentials: true,
   });
-  // app.useGlobalFilters(new SupertokensExceptionFilter());
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new AuthInterceptor());
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.listen(process.env.PORT);
 }

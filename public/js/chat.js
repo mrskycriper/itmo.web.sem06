@@ -34,11 +34,13 @@ window.addEventListener('load', () => {
         userId = await supertokens.getUserId();
       } catch (e) {}
 
-      socket.emit('messageFromClient', {
-        content: input.value,
-        chatId: chatId,
-        userId: userId,
-      });
+      if (userId) {
+        socket.emit('messageFromClient', {
+          content: input.value,
+          chatId: chatId,
+          userId: userId,
+        });
+      }
 
       input.value = '';
     }
