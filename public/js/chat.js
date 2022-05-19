@@ -47,49 +47,52 @@ window.addEventListener('load', () => {
   };
 
   socket.on('messageFromServer', function (msg) {
-    let messageCard = document.createElement('div');
-    messageCard.className = 'message-card';
+    let chatId = Number.parseInt(window.location.pathname.split('/')[2]);
+    if (chatId === msg.chatId) {
+      let messageCard = document.createElement('div');
+      messageCard.className = 'message-card';
 
-    let avatar = document.createElement('img');
-    avatar.src =
-      'https://ui-avatars.com/api/?name=' +
-      msg.author.name +
-      '&rounded=true&size=32';
-    avatar.className = 'message-card__avatar';
+      let avatar = document.createElement('img');
+      avatar.src =
+        'https://ui-avatars.com/api/?name=' +
+        msg.author.name +
+        '&rounded=true&size=32';
+      avatar.className = 'message-card__avatar';
 
-    let div = document.createElement('div');
+      let div = document.createElement('div');
 
-    let header = document.createElement('div');
-    header.className = 'message-card__header';
+      let header = document.createElement('div');
+      header.className = 'message-card__header';
 
-    let name = document.createElement('a');
-    name.href = '/users/' + msg.author.name;
-    name.className = 'message-card__name';
-    name.textContent = msg.author.name;
+      let name = document.createElement('a');
+      name.href = '/users/' + msg.author.name;
+      name.className = 'message-card__name';
+      name.textContent = msg.author.name;
 
-    let date = document.createElement('p');
-    date.className = 'message-card__date';
-    let dateNumber = new Date(msg.createdAt);
-    date.textContent = dateNumber.toLocaleString('ru-RU', {
-      hour: 'numeric',
-      minute: 'numeric',
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-    });
+      let date = document.createElement('p');
+      date.className = 'message-card__date';
+      let dateNumber = new Date(msg.createdAt);
+      date.textContent = dateNumber.toLocaleString('ru-RU', {
+        hour: 'numeric',
+        minute: 'numeric',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+      });
 
-    let content = document.createElement('p');
-    content.className = 'message-card__content';
-    content.textContent = msg.content;
+      let content = document.createElement('p');
+      content.className = 'message-card__content';
+      content.textContent = msg.content;
 
-    header.append(name);
-    header.append(date);
-    div.append(header);
-    div.append(content);
-    messageCard.append(avatar);
-    messageCard.append(div);
-    messages.append(messageCard);
-    messages.scrollTop = messages.scrollHeight;
+      header.append(name);
+      header.append(date);
+      div.append(header);
+      div.append(content);
+      messageCard.append(avatar);
+      messageCard.append(div);
+      messages.append(messageCard);
+      messages.scrollTop = messages.scrollHeight;
+    }
   });
 });
 
