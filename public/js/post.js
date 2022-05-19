@@ -63,7 +63,7 @@ async function handleCreateComment(postId) {
     _api
       .createComment(formData.content, Number.parseInt(postId), userId)
       .then(() => {
-        window.location.href = window.location.pathname + '?page=1';
+        window.location.href = '/posts/' + postId + '?page=1';
       });
   }
 }
