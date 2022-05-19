@@ -26,7 +26,7 @@ class Api {
 
   checkUsername = (name) => this.#api.post('/checkName', { name: name });
 
-  createUser = (name, id) => this.#api.post('/users', { name: name, id: id });
+  createUser = (name, id) => this.#api.post('/user', { name: name, id: id });
 
   updateRole = (name, isModerator, isAdmin) =>
     this.#api.put('/users/' + name + '/role', {
