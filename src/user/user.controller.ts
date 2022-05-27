@@ -41,7 +41,8 @@ export class UserController {
 
   @ApiOperation({ summary: 'Check if username is already taken' })
   @ApiBody({ type: CheckUsernameDto })
-  @ApiOkResponse({ description: 'Ok.' })
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
   @Post('checkName')
   async isUsernameTaken(
     @Body() checkUsernameDto: CheckUsernameDto,
@@ -51,8 +52,8 @@ export class UserController {
 
   @ApiOperation({ summary: 'Create new user' })
   @ApiBody({ type: CreateUserDto })
-  @ApiCreatedResponse({ description: 'Created.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
   @Post('user')
   async createUser(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.createUser(createUserDto);
@@ -64,8 +65,8 @@ export class UserController {
     type: 'string',
     description: 'Unique user name',
   })
-  @ApiOkResponse({ description: 'Ok.' })
-  @ApiNotFoundResponse({ description: 'User not found.' })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
   @Get('users/:userName')
   @Render('user-profile')
   async getUserProfile(
@@ -87,11 +88,11 @@ export class UserController {
     description: 'Unique user name',
   })
   @ApiBody({ type: EditRoleDto })
-  @ApiOkResponse({ description: 'Ok.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Forbidden operation.' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
-  @ApiNotFoundResponse({ description: 'User not found.' })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
   @UseGuards(UpdateRoleGuard)
   @Put('users/:userName/role')
   async updateRole(
@@ -109,11 +110,11 @@ export class UserController {
     description: 'Unique user name',
   })
   @ApiBody({ type: UpdateBioDto })
-  @ApiOkResponse({ description: 'Ok.' })
-  @ApiBadRequestResponse({ description: 'Bad request.' })
-  @ApiForbiddenResponse({ description: 'Forbidden operation.' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
-  @ApiNotFoundResponse({ description: 'User not found.' })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
   @UseGuards(UpdateBioGuard)
   @Put('users/:userName/bio')
   async updateBio(
@@ -130,10 +131,10 @@ export class UserController {
     type: 'string',
     description: 'Unique user name',
   })
-  @ApiOkResponse({ description: 'Ok.' })
-  @ApiForbiddenResponse({ description: 'Forbidden operation.' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
-  @ApiNotFoundResponse({ description: 'User not found.' })
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
   @UseGuards(DeleteUserGuard)
   @Delete('users/:userName')
   async deleteUser(@Param('userName') userName: string) {
@@ -141,7 +142,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get login page' })
-  @ApiOkResponse({ description: 'Ok.' })
+  @ApiOkResponse({ description: 'OK' })
   @Get('login')
   @Render('login')
   async renderLogin() {
@@ -149,7 +150,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get register page' })
-  @ApiOkResponse({ description: 'Ok.' })
+  @ApiOkResponse({ description: 'OK' })
   @Get('register')
   @Render('register')
   async login() {

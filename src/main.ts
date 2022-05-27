@@ -5,17 +5,11 @@ import { join } from 'path';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import * as express from 'express';
-import { UserEntity } from './user/entity/user.entity';
 import { CreateUserDto } from './user/dto/create.user.dto';
-import { ProfileEntity } from './user/entity/profile.entity';
-import { ChatEntity } from './chat/entity/chat.entity';
-import { MessageEntity } from './chat/entity/message.entity';
 import { CreateMessageDto } from './chat/dto/create.message.dto';
 import { CreateChatDto } from './chat/dto/create.chat.dto';
 import { EditChatDto } from './chat/dto/edit.chat.dto';
 import { UpdateBioDto } from './user/dto/update.bio.dto';
-import { TopicEntity } from './topic/entity/topic.entity';
-import { PostEntity } from './post/entity/post.entity';
 import { CreateCategoryDto } from './category/dto/create.category.dto';
 import { CreateTopicDto } from './topic/dto/create.topic.dto';
 import { CreatePostDto } from './post/dto/create.post.dto';
@@ -53,14 +47,6 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config, {
     extraModels: [
-      UserEntity,
-      ProfileEntity,
-      ChatEntity,
-      MessageEntity,
-      ChatEntity,
-      TopicEntity,
-      PostEntity,
-      MessageEntity,
       CheckUsernameDto,
       CreateUserDto,
       EditRoleDto,
